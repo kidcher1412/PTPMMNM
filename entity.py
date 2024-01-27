@@ -1,4 +1,5 @@
 import random
+import time
 import pygame
 from pygame.math import Vector2 as vector
 from os import walk
