@@ -1,0 +1,5 @@
+
+
+# Ignore the 'myenv' folder
+/myenv/
+/__pycache__/
