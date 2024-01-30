@@ -2,9 +2,16 @@ import pygame, sys
 from pygame.math import Vector2 as vector
 from settings import * 
 from player import Player
+import pytmx
 from pytmx.util_pygame import load_pygame
-from sprite import Sprite, Bullet, Item
+from sprite import Sprite, Bullet, Item, Skill
 from monster import Coffin, Cactus
+import ctypes
+from minimap import Map
+
+# Ẩn chuột mặc định của hệ điều hành
+ctypes.windll.user32.ShowCursor(False)
+
 
 class AllSprites(pygame.sprite.Group):
 	def __init__(self):
@@ -20,6 +27,8 @@ class AllSprites(pygame.sprite.Group):
 	def customize_draw(self,player):
 
 		# change the offset vector
+		# self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
+		# self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
 		self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
 		self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
 
@@ -38,16 +47,22 @@ class Game:
 		self.clock = pygame.time.Clock()
 		self.bullet_surf = pygame.image.load('p1_setup/graphics/other/particle.png').convert_alpha()
 
+		#map
+		self.map_data = []
+
 		# groups 
 		self.all_sprites = AllSprites()
 		self.obstacles = pygame.sprite.Group()
 		self.bullets = pygame.sprite.Group()
 		self.items = pygame.sprite.Group()
 		self.monsters = pygame.sprite.Group()
+		self.skills = pygame.sprite.Group()
 
 		self.setup()
 		self.music = pygame.mixer.Sound('p1_setup/sound/music.mp3')
 		self.music.play(loops = -1)
+
+		self.current_attack = None
 
 
 
@@ -56,6 +71,15 @@ class Game:
 
 	def create_bullet(self, pos, direction):
 		Bullet(pos, direction, self.bullet_surf, [self.all_sprites,self.bullets])
+
+	def create_image_skill(self, player):
+		self.current_attack = Skill(player, [self.all_sprites,self.skills])
+
+	def detroy_image_skill(self, player):
+		if not player.attacking:
+			if self.current_attack:
+				self.current_attack.kill()
+			self.current_attack = None
   
 	def bullet_collision(self):
 		# bullet obstacle collision
@@ -78,8 +102,13 @@ class Game:
 
 
 	def setup(self):
-		tmx_map = load_pygame('p1_setup/map.tmx')
-		
+		# tmx_map = load_pygame('p1_setup/map.tmx')
+		tmx_map = load_pygame('p1_setup/map/map3.tmx')
+		for layer in tmx_map.visible_layers:
+			if isinstance(layer, pytmx.TiledTileLayer):
+				self.map_data.append(layer)
+
+			
 		# tiles
 		for x, y, surf in tmx_map.get_layer_by_name('Fence').tiles():
 			Sprite((x * 64, y * 64),surf,[self.all_sprites, self.obstacles])
@@ -105,6 +134,8 @@ class Game:
 				Cactus((obj.x, obj.y), [self.all_sprites, self.monsters], PATHS['cactus'], self.obstacles, self.player, self.create_bullet, self.create_item)
 
 	def run(self):
+		MiniMap = Map(self.display_surface)
+		show_map_preview = False
 		while True:
 			# event loop 
 			self.player.handle_item(self.items)
@@ -114,6 +145,7 @@ class Game:
 					sys.exit()
 			dt = self.clock.tick() / 1000
 
+
 			# update groups 
 			self.all_sprites.update(dt)
 			self.bullet_collision()
@@ -122,15 +154,33 @@ class Game:
 			self.display_surface.fill('black')
 			self.all_sprites.customize_draw(self.player)
 
-			heart_image = pygame.image.load('./p1_setup/graphics/heart/heart.png').convert_alpha()
-			heart_width, heart_height = (50,50)
-			heart_spacing = 20
-			# for i in range(self.player.health):
-			# 	heart_rect = pygame.Rect(i * (heart_width + heart_spacing), 10, heart_width, heart_height)
-			# 	self.display_surface.blit(heart_image, heart_rect)
+
 
 			self.player.draw_healthSceen(self.display_surface)
+			self.player.draw_cooldown_skill(self.display_surface)
+			self.player.draw_damege_lost(self.display_surface)
+			if self.player.attacking:
+				self.create_image_skill(self.player)
+			else:
+				self.detroy_image_skill(self.player)
 
+			# map show
+			for event in pygame.event.get():
+					if event.type == pygame.QUIT:
+						pygame.quit()
+						sys.exit()
+					elif event.type == pygame.KEYDOWN:
+						if event.key == pygame.K_m:
+							# Hiển thị hoặc ẩn bản đồ thu nhỏ tùy thuộc vào trạng thái hiện tại
+							show_map_preview = not show_map_preview
+			if show_map_preview:
+				MiniMap.draw_map_preview(self.map_data)
+
+
+			# draw custom mouse to tageter
+			mouse_x, mouse_y = pygame.mouse.get_pos()
+			mouse_img = pygame.image.load('./p1_setup/graphics/other/mouse.png')
+			self.display_surface.blit(mouse_img, (mouse_x - 50 // 2, mouse_y - 50 // 2))
 
 			pygame.display.update()
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="64" tileheight="64" nextobjectid="219">
- <tileset firstgid="1" source="data/ground.tsx"/>
- <tileset firstgid="249" source="data/fence.tsx"/>
- <tileset firstgid="393" source="data/objects.tsx"/>
- <layer name="Ground" width="60" height="60">
+<map version="1.10" tiledversion="1.10.1" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="64" tileheight="64" infinite="0" nextlayerid="5" nextobjectid="215">
+ <tileset firstgid="1" source="../data/ground.tsx"/>
+ <tileset firstgid="249" source="../data/fence.tsx"/>
+ <tileset firstgid="393" source="../data/objects.tsx"/>
+ <layer id="1" name="Ground" width="60" height="60">
   <data encoding="csv">
 122,90,91,122,59,61,61,123,60,123,59,59,59,59,58,90,121,123,89,120,120,59,60,89,59,123,120,89,121,123,123,89,58,91,121,122,89,58,92,60,58,59,59,60,58,60,61,89,90,91,89,91,61,91,92,91,121,121,59,121,
 90,61,122,60,120,92,89,121,92,121,59,123,58,60,91,58,89,91,120,92,60,59,59,59,92,122,121,92,60,92,120,120,123,58,90,59,61,90,123,122,122,121,59,92,123,90,61,90,89,60,58,123,91,91,121,120,59,120,58,123,
@@ -67,7 +67,7 @@
 60,59,123,61,89,123,90,90,91,60,90,58,120,120,89,89,61,89,60,58,58,89,91,122,61,120,90,58,58,60,59,92,120,60,89,90,92,90,120,61,89,122,89,59,121,59,58,122,58,90,91,121,91,90,61,58,92,89,91,92
 </data>
  </layer>
- <layer name="Fence" width="60" height="60">
+ <layer id="2" name="Fence" width="60" height="60">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -131,7 +131,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup name="Object">
+ <objectgroup id="3" name="Object">
   <object id="121" gid="393" x="840" y="994.67" width="576" height="600"/>
   <object id="122" gid="401" x="2544.55" y="2490.85" width="800" height="628"/>
   <object id="123" gid="402" x="1480" y="1110" width="384" height="484"/>
@@ -211,21 +211,51 @@
   <object id="197" gid="405" x="1600" y="438" width="104" height="64"/>
   <object id="198" gid="405" x="3338" y="1956" width="104" height="64"/>
  </objectgroup>
- <objectgroup name="Entities">
-  <object id="200" name="Player" x="1945.45" y="1624.24"/>
-  <object id="201" name="Cactus" x="2462" y="1462"/>
-  <object id="202" name="Coffin" x="1350" y="1970"/>
-  <object id="203" name="Coffin" x="2394" y="2178"/>
-  <object id="204" name="Cactus" x="2814" y="1260"/>
-  <object id="205" name="Coffin" x="836" y="1158"/>
-  <object id="206" name="Cactus" x="750" y="1944"/>
-  <object id="207" name="Coffin" x="1448" y="2976"/>
-  <object id="208" name="Cactus" x="1632" y="2850"/>
-  <object id="209" name="Coffin" x="1966" y="2376"/>
-  <object id="210" name="Coffin" x="2866" y="2902"/>
-  <object id="211" name="Cactus" x="3162" y="2584"/>
-  <object id="212" name="Cactus" x="2688" y="1866"/>
-  <object id="213" name="Coffin" x="2756" y="1404"/>
-  <object id="214" name="Cactus" x="2392" y="1008"/>
+ <objectgroup id="4" name="Entities">
+  <object id="200" name="Player" x="1945.45" y="1624.24">
+   <point/>
+  </object>
+  <object id="201" name="Cactus" x="2462" y="1462">
+   <point/>
+  </object>
+  <object id="202" name="Coffin" x="1350" y="1970">
+   <point/>
+  </object>
+  <object id="203" name="Coffin" x="2394" y="2178">
+   <point/>
+  </object>
+  <object id="204" name="Cactus" x="2814" y="1260">
+   <point/>
+  </object>
+  <object id="205" name="Coffin" x="836" y="1158">
+   <point/>
+  </object>
+  <object id="206" name="Cactus" x="750" y="1944">
+   <point/>
+  </object>
+  <object id="207" name="Coffin" x="1448" y="2976">
+   <point/>
+  </object>
+  <object id="208" name="Cactus" x="1632" y="2850">
+   <point/>
+  </object>
+  <object id="209" name="Coffin" x="1966" y="2376">
+   <point/>
+  </object>
+  <object id="210" name="Coffin" x="2866" y="2902">
+   <point/>
+  </object>
+  <object id="211" name="Cactus" x="3162" y="2584">
+   <point/>
+  </object>
+  <object id="212" name="Cactus" x="2688" y="1866">
+   <point/>
+  </object>
+  <object id="213" name="Coffin" x="2756" y="1404">
+   <point/>
+  </object>
+  <object id="214" name="Cactus" x="2392" y="1008">
+   <point/>
+  </object>
  </objectgroup>
 </map>

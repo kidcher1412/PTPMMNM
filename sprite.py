@@ -19,6 +19,7 @@ class Bullet(pygame.sprite.Sprite):
         self.direction = direction
         self.speed = 350
         
+        
     def update(self,dt):
         self.pos += self.direction * self.speed * dt
         self.rect.center = (round(self.pos.x), round(self.pos.y))
@@ -58,3 +59,12 @@ class Item(pygame.sprite.Sprite):
             player.heal_effect()
         # Thêm các tùy chọn xử lý khác nếu cần
         self.kill()  # Xóa item sau khi tương tác
+
+
+class Skill(pygame.sprite.Sprite):
+	def __init__(self,player,groups):
+          super().__init__(groups)
+          full_path = f'./p1_setup/graphics/skill/{player.skill}.png'
+          self.image = pygame.image.load(full_path).convert_alpha()
+          self.rect = self.image.get_rect(midleft = player.rect.midright + pygame.math.Vector2(0,16))
+        

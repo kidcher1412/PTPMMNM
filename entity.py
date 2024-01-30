@@ -55,7 +55,13 @@ class Entity(pygame.sprite.Sprite):
 				white_surf = mask.to_surface()
 				white_surf.set_colorkey((0,0,0)) # remove all black pixels from mask
 				self.image = white_surf
-   
+			
+	# def draw_damege_lost(self, screen):
+	# 	if not self.is_vulnerable:
+	# 		lost_image = pygame.image.load('./p1_setup/graphics/heart/heart.png').convert_alpha()
+	# 		screen.blit(lost_image, (self.rect.centerx - lost_image.get_width() // 2, self.rect.top - 10))
+
+
 	def wave_value(self):
 		value = sin(pygame.time.get_ticks())
 		if value >= 0:
@@ -104,7 +110,7 @@ class Entity(pygame.sprite.Sprite):
 	def vulnerability_timer(self):
 		if not self.is_vulnerable:
 			current_time = pygame.time.get_ticks()
-			if current_time - self.hit_time > 500:
+			if current_time - self.hit_time > 1500:
 				self.is_vulnerable = True
 		
 
@@ -119,7 +125,7 @@ class Entity(pygame.sprite.Sprite):
 				for file_name in sorted(folder[2], key = lambda string: int(string.split('.')[0])):
 					path = folder[0].replace('\\','/') + '/' + file_name
 					surf = pygame.image.load(path).convert_alpha()
-					key = folder[0].split('\\')[1]
+					key = folder[0].split('\\')[-1]
 					self.animations[key].append(surf)
 
 	def move(self,dt):
