@@ -32,3 +32,7 @@ comming soon</br>
 - chạy game bằng lệnh:
 ### `python main.py`
 
+# công cụ phát triển:
+- Tạo map: Tiled 
+- Tạo model nhân vật: Aseprite
+
