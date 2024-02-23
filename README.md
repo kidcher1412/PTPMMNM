@@ -11,6 +11,7 @@
 - Các công việc được giao mỗi thành viên phải commit đúng vào branch với tên ứng với <tên thành viên>-<mã thành viên> (VD: thong-1). Trừ các task test unit và test chức năng thì commit tại branch dev-test
 - Các thành viên colab không được thực hiện thao tác merge code mà chưa thông qua trong cuộc họp
 - Các trường hợp không thể commit dúng hạn theo dự tính phải báo trước nhóm về lý do và task out-time
+- mọi font chữ trong game đều dùng font trong thư mục /p1_setup/font/myFont.ttf cho đồng bộ khi merge
 # Chức năng yêu cầu:
 - Chức năng đăng nhập (tạo-cập nhật-lấy lại mật khẩu-thay đôi thông tin tài khoản (có thể cập nhật trường mật khẩu, email/sdt))
 - Chức năng tạo phòng/tham gia phòng: Khi tham gia phòng các người chơi có thể chat, sẵn sàng, chủ phòng bắt đầu trận đấu, thay đổi bản đồ đấu. Có chức năng tham gia phòng đấu bằng ID phòng
