@@ -17,7 +17,7 @@
 - Chức năng đấu online theo phòng đấu đã định: người chơi bắn súng với nhau: các chức năng xem bản đồ với vị trí hiện tại, đổi vũ khí, skill, thoát trận , chat trong trận
 - Về chức năng cá nhân hóa (nêu kịp thực hiện): người chơi có thể chọn trang phục trong kho đồ, chức năng nạp tiền, mua skin, mở cổng thanh toán online, mua thẻ đổi tên nhân vật
 # Giao diện
-<comming soon>
+comming soon</br>
 # Cách kéo và chạy code: </br>
 - Kéo code kham khảo ở main bằng lệnh pull
 - Chạy lệnh pip install -r requirements.txt tại đường dẫn vừa pull về
