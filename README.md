@@ -18,3 +18,8 @@
 - Về chức năng cá nhân hóa (nêu kịp thực hiện): người chơi có thể chọn trang phục trong kho đồ, chức năng nạp tiền, mua skin, mở cổng thanh toán online, mua thẻ đổi tên nhân vật
 # Giao diện
 <comming soon>
+# Cách kéo và chạy code:
+- Kéo code kham khảo ở main bằng lệnh pull
+- Chạy lệnh pip install -r requirements.txt tại đường dẫn vừa pull về
+- chạy game bằng lệnh python main.py
+
