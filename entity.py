@@ -129,8 +129,6 @@ class Entity(pygame.sprite.Sprite):
 					self.animations[key].append(surf)
 
 	def move(self,dt):
-
-		
 		# normalize 
 		if self.direction.magnitude() != 0:
 			self.direction = self.direction.normalize()

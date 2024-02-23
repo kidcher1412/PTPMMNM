@@ -15,11 +15,8 @@ class Player(Entity):
 		self.skill = 'gun'
 		
 		# moverment information
-		self.sliding_speed = 400  # Tốc độ di chuyển khi lướt nhanh
-		self.slide_duration = 2   # Thời gian lướt nhanh (tính bằng giây)
-		self.sliding_distance = 200   # Thời gian lướt nhanh (tính bằng khoan cach man hinh)
-		self.time_slide = 400    # Tốc độ
-		self.slide_cooldown = 1000   # Thời gian giữa các lần lướt nhanh (tính bằng giây)
+		self.sliding_distance = 150   # Thời gian lướt nhanh (tính bằng khoan cach man hinh)
+		self.slide_cooldown = 4000   # Thời gian giữa các lần lướt nhanh (tính bằng giây)
 
 
 	#override
@@ -105,7 +102,6 @@ class Player(Entity):
 
 		mouse_buttons = pygame.mouse.get_pressed()
 		if mouse_buttons[0]:
-			# Shooting, not moving
 			self.attacking = True
 			self.frame_index = 0
 			self.bullet_shot = False
@@ -157,7 +153,7 @@ class Player(Entity):
 		self.frame_index += 7 * dt
 
 		if int(self.frame_index) == 2 and self.attacking and not self.bullet_shot:
-			bullet_start_pos = self.rect.center + self.bullet_direction * 80
+			bullet_start_pos = self.rect.center + self.bullet_direction * 80		#tầm bắn đạn được xuất hiện là 80 có thể chỉnh cao hơn
 			self.create_bullet(bullet_start_pos,self.bullet_direction)
 			self.bullet_shot = True
 			self.shoot_sound.play()
