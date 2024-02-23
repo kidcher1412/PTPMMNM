@@ -6,7 +6,7 @@
 |1    |3120560093  |Hoàng Lê Anh Thông  |
 |2    |3120410575  |Trần Trọng Trường   |
 |3    |3120410360  |Phan Thành Nhân     |
-|4    |3120410528  |Em Tiến Catching TFT|
+|4    |3120410528  |Em Tiến Coaching TFT|
 # Luật làm việc:</br>
 - Các công việc được giao mỗi thành viên phải commit đúng vào branch với tên ứng với <tên thành viên>-<mã thành viên> (VD: thong-1). Trừ các task test unit và test chức năng thì commit tại branch dev-test
 - Các thành viên colab không được thực hiện thao tác merge code mà chưa thông qua trong cuộc họp
@@ -19,8 +19,16 @@
 - Về chức năng cá nhân hóa (nêu kịp thực hiện): người chơi có thể chọn trang phục trong kho đồ, chức năng nạp tiền, mua skin, mở cổng thanh toán online, mua thẻ đổi tên nhân vật
 # Giao diện
 comming soon</br>
+# Document about Project
+- Usercase:
+ ![sơ đồ chức năng](./docProject/Usercase-stand.png)
+ - Data Workflow
+ ![sơ đồ luồng và lịch trình dữ liệu](./docProject/TDFD.png)
 # Cách kéo và chạy code: </br>
-- Kéo code kham khảo ở main bằng lệnh pull
-- Chạy lệnh pip install -r requirements.txt tại đường dẫn vừa pull về
-- chạy game bằng lệnh python main.py
+- Kéo code kham khảo ở main bằng lệnh pull:
+### `git pull origin main`
+- Chạy lệnh pip install tại đường dẫn vừa pull về:
+### `pip install -r requirements.txt`
+- chạy game bằng lệnh:
+### `python main.py`
 
