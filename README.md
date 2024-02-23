@@ -1,12 +1,12 @@
 #### Dự án Sắp tới cho môn Phát Triển Phần Mềm Mã Nguồn Mở</br>
 ### Đề tài: Làm game bắn súng online trên cổng mạng hoặc dùng socket public</br>
 # Thành viên thực hiện:</br>
-|MTV  |MSSV        |Họ và tên         |
-|:---:|:----------:|------------------|
-|1    |3120560093  |Hoàng Lê Anh Thông|
-|2    |3120575xxx  |Trần Trọng Trường |
-|3    |3121410091  |Nhân              |
-|4    |3121410202  |Em Tiến           |
+|MTV  |MSSV        |Họ và tên           |
+|:---:|:----------:|--------------------|
+|1    |3120560093  |Hoàng Lê Anh Thông  |
+|2    |3120410575  |Trần Trọng Trường   |
+|3    |3120410360  |Phan Thành Nhân     |
+|4    |3120410528  |Em Tiến Catching TFT|
 # Luật làm việc:</br>
 - Các công việc được giao mỗi thành viên phải commit đúng vào branch với tên ứng với <tên thành viên>-<mã thành viên> (VD: thong-1). Trừ các task test unit và test chức năng thì commit tại branch dev-test
 - Các thành viên colab không được thực hiện thao tác merge code mà chưa thông qua trong cuộc họp
