@@ -11,6 +11,7 @@ from minimap import Map
 from oderplayer import OderPlayer
 
 # Ẩn chuột mặc định của hệ điều hành
+#change test
 ctypes.windll.user32.ShowCursor(False)
 
 
