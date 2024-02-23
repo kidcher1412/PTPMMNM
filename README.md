@@ -24,3 +24,7 @@ comming soon</br>
 - Chạy lệnh pip install -r requirements.txt tại đường dẫn vừa pull về
 - chạy game bằng lệnh python main.py
 
+# công cụ phát triển:
+- Tạo map: Tiled 
+- Tạo model nhân vật: Aseprite
+
