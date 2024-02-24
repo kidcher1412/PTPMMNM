@@ -24,6 +24,8 @@ comming soon</br>
  ![sơ đồ chức năng](./docProject/Usercase-stand.png)
  - Data Workflow
  ![sơ đồ luồng và lịch trình dữ liệu](./docProject/TDFD.png)
+ - Env deploy
+ ![sơ đồ luồng và lịch trình dữ liệu](./docProject/Envigroment.png)
 # Cách kéo và chạy code: </br>
 - Kéo code kham khảo ở main bằng lệnh pull:
 ### `git pull origin main`
