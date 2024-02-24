@@ -4,7 +4,7 @@ from entity import Entity
 from settings import * 
 
 
-class OderPlayer(Entity):
+class OtherPlayer(Entity):
 	def __init__(self, pos, groups, path, collision_sprites, create_bullet, create_item):
 		super().__init__(pos, groups, path, collision_sprites,create_item)
 		self.create_bullet = create_bullet
@@ -64,11 +64,6 @@ class OderPlayer(Entity):
 		self.image = current_animation[int(self.frame_index)]
 		self.mask = pygame.mask.from_surface(self.image)
   
-	def check_death(self):
-		if self.health <= 0:
-			pygame.quit()
-			sys.exit()
-
 	def handle_item(self, items):
 		items_nearby= pygame.sprite.spritecollide(self, items, True, pygame.sprite.collide_mask)
 		for item in items_nearby:

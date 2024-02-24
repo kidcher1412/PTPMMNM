@@ -8,7 +8,7 @@ from sprite import Sprite, Bullet, Item, Skill
 from monster import Coffin, Cactus
 import ctypes
 from minimap import Map
-from oderplayer import OderPlayer
+from otherplayer import OtherPlayer
 
 # Ẩn chuột mặc định của hệ điều hành
 #change test
@@ -58,6 +58,7 @@ class Game:
 		self.bullets = pygame.sprite.Group()
 		self.items = pygame.sprite.Group()
 		self.monsters = pygame.sprite.Group()
+		self.otherplayers = pygame.sprite.Group()
 		self.skills = pygame.sprite.Group()
 
 		self.setup()
@@ -81,10 +82,15 @@ class Game:
 		for obstacle in self.obstacles.sprites():
 			pygame.sprite.spritecollide(obstacle, self.bullets, True)
    
-		# bullet monster collision
+		# bullet monster/other players collision
 		for bullet in self.bullets.sprites():
 			sprites = pygame.sprite.spritecollide(bullet, self.monsters, False, pygame.sprite.collide_mask)
-   
+			if sprites:
+				bullet.kill()
+				for sprite in sprites:
+					sprite.damage()
+
+			sprites = pygame.sprite.spritecollide(bullet, self.otherplayers, False, pygame.sprite.collide_mask)
 			if sprites:
 				bullet.kill()
 				for sprite in sprites:
@@ -123,16 +129,17 @@ class Game:
 					create_item= self.create_item)
 
 			if obj.name == 'oder-Player':
-				self.player = OderPlayer(
+				OtherPlayer(
 					pos = (obj.x,obj.y), 
-					groups = self.all_sprites, 
+					groups = [self.all_sprites, self.otherplayers], 
 					path = PATHS['cactus'], 
 					collision_sprites = self.obstacles,
 					create_bullet = self.create_bullet , 
 					create_item= self.create_item)
+				
 
 			if obj.name == 'Coffin':
-				Coffin((obj.x,obj.y), [self.all_sprites, self.monsters], PATHS['coffin'], self.obstacles, self.player, self.create_item )
+				Coffin((obj.x,obj.y), [self.all_sprites, self.monsters], PATHS['coffin'], self.obstacles, self.create_item )
 
 			if obj.name == 'Cactus':
 				Cactus((obj.x, obj.y), [self.all_sprites, self.monsters], PATHS['cactus'], self.obstacles, self.player, self.create_bullet, self.create_item)
