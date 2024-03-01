@@ -4,20 +4,19 @@ import threading
 import os
 import signal
 from sys import platform
-import sys
 import base64
 
-class serverType:
-
+class RoomGame:
     clients_dict = {}
     PORT = 5050
     DISCONNECT_MESSAGE = "exit"
     IP = ''
     server_name = ''
     server = ''
+    key_assert = ''
 
     def __init__(self):
-        if platform == "linux" or platform == "linux2":
+        if platform in ["linux", "linux2"]:
             os.system('clear')
             cmd = "ip -4 addr | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'"
             IPoutput = subprocess.check_output(cmd, shell=True).decode('utf-8').strip()
@@ -86,7 +85,11 @@ class serverType:
 
     def encodefunc(self, val):
         encoded_data = base64.b64encode(bytes(val, 'utf-8'))
+        self.key_assert = format(self.server_name, encoded_data.decode('utf-8'))
         print("\n\n-------- {}'s Chat-Room accesskey : ( {} ) --------".format(self.server_name, encoded_data.decode('utf-8')))
+
+    def get_return_ID(self):
+        return self.key_assert
 
     def getpasskey(self, str1):
         if str1[0:7] == '192.168':
@@ -231,9 +234,6 @@ class serverType:
                     self.broadcast(b_message.encode('utf-8'), 'Server')
             except:
                 print('\n \t Error Occurred while Reading input \n')
-                # self.broadcast('Server left'.encode('utf-8'), 'Server')
-                # os._exit(0)
-
 
     def accept_conn(self):
         while True:
@@ -254,7 +254,6 @@ class serverType:
             client.send("Connected to [{}]!".format(self.server_name).encode('utf-8'))
             thread = threading.Thread(target=self.rec_message, args=(client,))
             thread.start()
-            #print('Active threads : ' + str(threading.active_count()-1))
 
     def keyboardInterruptHandler(self, signal, frame):
         print('Interrupted')
@@ -273,5 +272,5 @@ class serverType:
         print("Server created Successfully!\n")
         self.accept_conn()
 
-
-s1 = serverType()
+# Tạo một phòng chat mới bằng cách tạo một đối tượng ChatRoom
+# new_chat_room = RoomGame()
