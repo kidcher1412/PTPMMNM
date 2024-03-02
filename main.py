@@ -6,13 +6,13 @@ import pytmx
 from pytmx.util_pygame import load_pygame
 from sprite import Sprite, Bullet, Item, Skill
 from monster import Coffin, Cactus
-import ctypes
+# import ctypes
 from minimap import Map
 from otherplayer import OtherPlayer
 
 # Ẩn chuột mặc định của hệ điều hành
 #change test
-ctypes.windll.user32.ShowCursor(False)
+# ctypes.windll.user32.ShowCursor(False)
 
 
 class AllSprites(pygame.sprite.Group):
