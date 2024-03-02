@@ -3,7 +3,7 @@ import os
 from flask import Flask, request, jsonify
 from firebase_admin import credentials, firestore, initialize_app
 
-# Initialize Flask App
+# Initialize Flask App1
 app = Flask(__name__)
 
 # Initialize Firestore DB
