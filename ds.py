@@ -64,7 +64,7 @@ def update():
         return f"An Error Occured: {e}"
 
 
-@app.route('/delete', methods=['GET', 'DELETE'])
+@app.route('/delete', methods=['POST', 'DELETE'])
 def delete():
     """
         delete() : Delete a document from Firestore collection
@@ -72,7 +72,7 @@ def delete():
     """
     try:
         # Check for ID in URL query
-        todo_id = request.args.get('id')
+        todo_id = request.json['id']
         todo_ref.document(todo_id).delete()
         return jsonify({"success": True}), 200
     except Exception as e:
