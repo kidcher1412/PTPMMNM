@@ -10,7 +10,7 @@ SCREEN_WIDTH = 400
 SCREEN_HEIGHT = 300
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Đăng Nhập')
+pygame.display.set_caption('Đăng Nhập 456456')
 
 font = pygame.font.Font(None, 36)
 
