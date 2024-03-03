@@ -10,7 +10,7 @@ app = Flask(__name__)
 cred = credentials.Certificate('./key.json')
 default_app = initialize_app(cred)
 db = firestore.client()
-todo_ref = db.collection('todos')
+todo_ref = db.collection('Users')
 
 
 @app.route('/add', methods=['POST'])
@@ -21,8 +21,15 @@ def create():
         e.g. json={'id': '1', 'title': 'Write a blog post'}
     """
     try:
-        id = request.json['id']
-        todo_ref.document(id).set(request.json)
+        
+        username = request.json['username']
+        password = request.json['password']
+        json_export = {
+            "username": username,
+            "password": password
+        }
+        print("USER: "+username+ "  pass:"+ password)
+        todo_ref.document(username).set(json_export)
         return jsonify({"success": True}), 200
     except Exception as e:
         return f"An Error Occured: {e}"
