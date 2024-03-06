@@ -21,9 +21,6 @@ class AllSprites(pygame.sprite.Group):
 		self.offset = vector()
 		self.display_surface = pygame.display.get_surface()
 		self.bg = pygame.image.load('p1_setup/graphics/other/bg.png').convert()
-
-
-
 		
 
 	def customize_draw(self,player):
@@ -97,8 +94,8 @@ class Game:
 
 
 	def setup(self):
-		# tmx_map = load_pygame('p1_setup/map.tmx')
-		tmx_map = load_pygame('p1_setup/map/map3.tmx')
+		tmx_map = load_pygame('p1_setup/map.tmx')
+		# tmx_map = load_pygame('p1_setup/map/map3.tmx')
 		for layer in tmx_map.visible_layers:
 			if isinstance(layer, pytmx.TiledTileLayer):
 				self.map_data.append(layer)
@@ -106,7 +103,7 @@ class Game:
 			
 		# tiles
 		for x, y, surf in tmx_map.get_layer_by_name('Fence').tiles():
-			Sprite((x * 64, y * 64),surf,[self.all_sprites, self.obstacles])
+			Sprite((x * 64, y * 64),surf,[self.all_sprites, self.obstacles])	
 
 		# objects
 		for obj in tmx_map.get_layer_by_name('Object'):
@@ -117,7 +114,7 @@ class Game:
 				self.player = Player(
 					pos = (obj.x,obj.y), 
 					groups = self.all_sprites, 
-					path = PATHS['player'], 
+					path = PATHS['cactus'], 
 					collision_sprites = self.obstacles,
 					create_bullet = self.create_bullet , 
 					create_item= self.create_item)
@@ -137,9 +134,12 @@ class Game:
 			if obj.name == 'Cactus':
 				Cactus((obj.x, obj.y), [self.all_sprites, self.monsters], PATHS['cactus'], self.obstacles, self.player, self.create_bullet, self.create_item)
 
+
 	def run(self):
 		MiniMap = Map(self.display_surface)
 		show_map_preview = False
+		mouse_img_normal = pygame.image.load('./p1_setup/graphics/other/mouse.png')
+		mouse_img_tab = pygame.image.load('./p1_setup/graphics/map/icon_tim_kiem.png')
 		while True:
 			# event loop 
 			self.player.handle_item(self.items)
@@ -149,7 +149,6 @@ class Game:
 					sys.exit()
 			dt = self.clock.tick() / 1000
 
-
 			# update groups 
 			self.all_sprites.update(dt)
 			self.bullet_collision()
@@ -158,30 +157,43 @@ class Game:
 			self.display_surface.fill('black')
 			self.all_sprites.customize_draw(self.player)
 
-
-
 			self.player.draw_healthSceen(self.display_surface)
 			self.player.draw_cooldown_skill(self.display_surface)
 			self.player.draw_damege_lost(self.display_surface)
 
+			MiniMap.update_dot_position(self.player.pos)
 			# map show
 			for event in pygame.event.get():
 					if event.type == pygame.QUIT:
 						pygame.quit()
 						sys.exit()
 					elif event.type == pygame.KEYDOWN:
-						if event.key == pygame.K_m:
+						if event.key == pygame.K_TAB:
+							self.player.direction.x = 0
+							self.player.direction.y = 0
 							# Hiển thị hoặc ẩn bản đồ thu nhỏ tùy thuộc vào trạng thái hiện tại
 							show_map_preview = not show_map_preview
+							# ngăn không cho thao tác đi và bắng khi mở map
+							self.player.Viewing_Map = not self.player.Viewing_Map
+
+
+					elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEMOTION:
+						# Gọi hàm xử lý zoom khi có sự kiện chuột
+						if self.player.Viewing_Map:
+							MiniMap.handle_zoom(event)	
+			
+			# Thay đổi ảnh của mouse_img dựa trên trạng thái nhấn tab
+			if self.player.Viewing_Map:
+				mouse_img = mouse_img_tab
+			else:
+				mouse_img = mouse_img_normal
+
 			if show_map_preview:
 				MiniMap.draw_map_preview(self.map_data)
 
-
-			# draw custom mouse to tageter
+			# draw custom mouse to target
 			mouse_x, mouse_y = pygame.mouse.get_pos()
-			mouse_img = pygame.image.load('./p1_setup/graphics/other/mouse.png')
 			self.display_surface.blit(mouse_img, (mouse_x - 50 // 2, mouse_y - 50 // 2))
-
 
 			pygame.display.update()
 

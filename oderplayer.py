@@ -43,7 +43,7 @@ class OderPlayer(Entity):
 		self.status = order_player.status
 		self.health = order_player.health
 		self.attacking = order_player.attacking
-			
+		
 
 	def animate(self,dt):
 		current_animation = self.animations[self.status]
@@ -75,7 +75,6 @@ class OderPlayer(Entity):
 			print("nhận hiệu ứng "+item.type)
 			self.health+=1
 			
-
 
 	def update(self,dt):
 		self.get_status()
