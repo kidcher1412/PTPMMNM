@@ -101,7 +101,6 @@ class Player(Entity):
 					self.direction.y = 0
 
 			mouse_buttons = pygame.mouse.get_pressed()
-
 			if mouse_buttons[0]:
 				self.attacking = True
 				self.frame_index = 0

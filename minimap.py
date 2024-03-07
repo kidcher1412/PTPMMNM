@@ -14,16 +14,18 @@ class Map(pygame.sprite.Sprite):
         self.background_color = (50, 50, 50)
         # Tạo điểm tại tọa độ (x, y)
         # 1945, 1514
-        self.dot_position = (486, 378)
+        self.dot_position = (0, 0)
+
+        # Tải ảnh và lấy kích thước ảnh gốc chỉ một lần
+        self.original_image = pygame.image.load('./p1_setup/map.png').convert_alpha()
+        self.original_size = self.original_image.get_rect().size
 
     def draw_map_preview(self, map_data):
-        # Lấy kích thước ảnh gốc
-        original_image = pygame.image.load('./p1_setup/map.png').convert_alpha()
-        original_size = original_image.get_rect().size
 
         # Thay đổi kích thước ảnh theo mức độ zoom
-        zoomed_size = (int(original_size[0] * self.zoom_factor), int(original_size[1] * self.zoom_factor))
-        zoomed_image = pygame.transform.scale(original_image, zoomed_size)
+        zoomed_size = (int(self.original_size[0] * self.zoom_factor), int(self.original_size[1] * self.zoom_factor))
+        zoomed_image = pygame.transform.scale(self.original_image, zoomed_size)
+
 
          # Tính toán vị trí để đưa ảnh vào giữa màn hình
         image_position = ((self.screen.get_width() - zoomed_size[0]) // 2, (self.screen.get_height() - zoomed_size[1]) // 2)
@@ -48,13 +50,8 @@ class Map(pygame.sprite.Sprite):
 
         # Trả lại phạm vi vẽ ban đầu
         self.screen.set_clip(None)
-
         # Vẽ khung
         pygame.draw.rect(self.screen, (0, 0, 0), background_rect, 10)
-        icon_image = pygame.image.load('./p1_setup/graphics/map/icon_xoa.png').convert_alpha()
-
-        icon_position = (background_rect.right - icon_image.get_width(), background_rect.top)
-        self.screen.blit(icon_image, icon_position)
     
     def handle_zoom(self, event):
         # Xử lý sự kiện zoom
@@ -63,7 +60,18 @@ class Map(pygame.sprite.Sprite):
         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:  # Lăn xuống
             self.zoom_factor = max(self.min_zoom, self.zoom_factor - 0.1)
 
+        # Tính toán kích thước ảnh sau khi zoom
+        zoomed_size = (int(self.original_size[0] * self.zoom_factor), int(self.original_size[1] * self.zoom_factor))
 
+        # Kiểm tra nếu kích thước ảnh nhỏ hơn kích thước của background, thì giữ kích thước của background
+        if zoomed_size[0] < self.map_preview['size'][0]:
+            self.zoom_factor = self.map_preview['size'][0] / self.original_size[0]
+        if zoomed_size[1] < self.map_preview['size'][1]:
+            self.zoom_factor = self.map_preview['size'][1] / self.original_size[1]
+
+        # Giới hạn kích thước zoom_factor để không vượt quá giới hạn
+        self.zoom_factor = min(self.max_zoom, max(self.min_zoom, self.zoom_factor))
+    
     # Trong class MiniMap hoặc Map
     def update_dot_position(self, player_pos):
         # Chia tọa độ mới thành 4 phần

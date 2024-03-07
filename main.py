@@ -143,10 +143,6 @@ class Game:
 		while True:
 			# event loop 
 			self.player.handle_item(self.items)
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					pygame.quit()
-					sys.exit()
 			dt = self.clock.tick() / 1000
 
 			# update groups 
@@ -161,6 +157,7 @@ class Game:
 			self.player.draw_cooldown_skill(self.display_surface)
 			self.player.draw_damege_lost(self.display_surface)
 
+			
 			MiniMap.update_dot_position(self.player.pos)
 			# map show
 			for event in pygame.event.get():
@@ -168,20 +165,19 @@ class Game:
 						pygame.quit()
 						sys.exit()
 					elif event.type == pygame.KEYDOWN:
+						
 						if event.key == pygame.K_TAB:
 							self.player.direction.x = 0
 							self.player.direction.y = 0
+
 							# Hiển thị hoặc ẩn bản đồ thu nhỏ tùy thuộc vào trạng thái hiện tại
 							show_map_preview = not show_map_preview
 							# ngăn không cho thao tác đi và bắng khi mở map
 							self.player.Viewing_Map = not self.player.Viewing_Map
-
-
 					elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEMOTION:
-						# Gọi hàm xử lý zoom khi có sự kiện chuột
 						if self.player.Viewing_Map:
 							MiniMap.handle_zoom(event)	
-			
+					
 			# Thay đổi ảnh của mouse_img dựa trên trạng thái nhấn tab
 			if self.player.Viewing_Map:
 				mouse_img = mouse_img_tab
