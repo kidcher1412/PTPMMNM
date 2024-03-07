@@ -90,11 +90,14 @@ class Game:
 		# player bullet collision
 		if pygame.sprite.spritecollide(self.player, self.bullets, True, pygame.sprite.collide_mask):
 			self.player.damage()
+		# player bullet collision
+		if pygame.sprite.spritecollide(self.otherNor, self.bullets, True, pygame.sprite.collide_mask):
+			self.otherNor.damage()
 
 
 
 	def setup(self):
-		tmx_map = load_pygame('p1_setup/map.tmx')
+		tmx_map = load_pygame('p1_setup/map/map4.tmx')
 		# tmx_map = load_pygame('p1_setup/map/map3.tmx')
 		for layer in tmx_map.visible_layers:
 			if isinstance(layer, pytmx.TiledTileLayer):
@@ -120,7 +123,7 @@ class Game:
 					create_item= self.create_item)
 
 			if obj.name == 'oder-Player':
-				self.player = OderPlayer(
+				self.otherNor = OderPlayer(
 					pos = (obj.x,obj.y), 
 					groups = self.all_sprites, 
 					path = PATHS['cactus'], 
@@ -177,6 +180,7 @@ class Game:
 					elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEMOTION:
 						if self.player.Viewing_Map:
 							MiniMap.handle_zoom(event)	
+							# MiniMap.handle_events(event)
 					
 			# Thay đổi ảnh của mouse_img dựa trên trạng thái nhấn tab
 			if self.player.Viewing_Map:

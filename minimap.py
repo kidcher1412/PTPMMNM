@@ -17,8 +17,10 @@ class Map(pygame.sprite.Sprite):
         self.dot_position = (0, 0)
 
         # Tải ảnh và lấy kích thước ảnh gốc chỉ một lần
-        self.original_image = pygame.image.load('./p1_setup/map.png').convert_alpha()
+        self.original_image = pygame.image.load('./p1_setup/map/map4.png').convert_alpha()
         self.original_size = self.original_image.get_rect().size
+
+        self.dragging = False
 
     def draw_map_preview(self, map_data):
 
@@ -52,7 +54,37 @@ class Map(pygame.sprite.Sprite):
         self.screen.set_clip(None)
         # Vẽ khung
         pygame.draw.rect(self.screen, (0, 0, 0), background_rect, 10)
+
+        if self.dragging:
+            # Nếu đang kéo, cập nhật vị trí của ảnh
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            drag_offset = (mouse_x - self.dot_position[0], mouse_y - self.dot_position[1])
+            image_position = (image_position[0] + drag_offset[0], image_position[1] + drag_offset[1])
+            self.dot_position = (mouse_x, mouse_y)
     
+    def handle_events(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:  # Nếu là nút trái chuột
+                self.dragging = True
+                self.last_mouse_pos = pygame.mouse.get_pos()
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                # Tính khoảng di chuyển của chuột
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                dx = mouse_x - self.last_mouse_pos[0]
+                dy = mouse_y - self.last_mouse_pos[1]
+
+                # Di chuyển ảnh theo khoảng di chuyển của chuột
+                self.dot_position = (self.dot_position[0] + dx / (4 * self.zoom_factor),
+                                    self.dot_position[1] + dy / (4 * self.zoom_factor))
+
+                # Lưu lại vị trí chuột cho lần tiếp theo
+                self.last_mouse_pos = (mouse_x, mouse_y)
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                self.dragging = False
+
     def handle_zoom(self, event):
         # Xử lý sự kiện zoom
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:  # Lăn lên

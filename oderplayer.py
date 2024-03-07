@@ -64,10 +64,7 @@ class OderPlayer(Entity):
 		self.image = current_animation[int(self.frame_index)]
 		self.mask = pygame.mask.from_surface(self.image)
   
-	def check_death(self):
-		if self.health <= 0:
-			pygame.quit()
-			sys.exit()
+
 
 	def handle_item(self, items):
 		items_nearby= pygame.sprite.spritecollide(self, items, True, pygame.sprite.collide_mask)
