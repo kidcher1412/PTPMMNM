@@ -1,4 +1,5 @@
 import pygame
+import sys
 
 class Map(pygame.sprite.Sprite):
     def __init__(self, screen):
@@ -19,8 +20,11 @@ class Map(pygame.sprite.Sprite):
         # Tải ảnh và lấy kích thước ảnh gốc chỉ một lần
         self.original_image = pygame.image.load('./p1_setup/map/map4.png').convert_alpha()
         self.original_size = self.original_image.get_rect().size
+        self.image_position = (0, 0)
 
-        self.dragging = False
+        self.background_rect = pygame.Rect((0, 0), self.map_preview['size'])
+
+
 
     def draw_map_preview(self, map_data):
 
@@ -31,14 +35,14 @@ class Map(pygame.sprite.Sprite):
 
          # Tính toán vị trí để đưa ảnh vào giữa màn hình
         image_position = ((self.screen.get_width() - zoomed_size[0]) // 2, (self.screen.get_height() - zoomed_size[1]) // 2)
-        background_rect = pygame.Rect((0, 0), self.map_preview['size'])
-        background_rect.topleft = ((self.screen.get_width() - self.map_preview['size'][0]) // 2, (self.screen.get_height() - self.map_preview['size'][1]) // 2)
+
+        self.background_rect.topleft = ((self.screen.get_width() - self.map_preview['size'][0]) // 2, (self.screen.get_height() - self.map_preview['size'][1]) // 2)
 
         # Vẽ phông dưới ảnh
-        pygame.draw.rect(self.screen, self.background_color, background_rect)
+        pygame.draw.rect(self.screen, self.background_color, self.background_rect)
 
         # Giới hạn phạm vi vẽ của ảnh bằng background_rect
-        self.screen.set_clip(background_rect)
+        self.screen.set_clip(self.background_rect)
 
         # Vẽ ảnh đã zoom
         self.screen.blit(zoomed_image, image_position)
@@ -53,37 +57,7 @@ class Map(pygame.sprite.Sprite):
         # Trả lại phạm vi vẽ ban đầu
         self.screen.set_clip(None)
         # Vẽ khung
-        pygame.draw.rect(self.screen, (0, 0, 0), background_rect, 10)
-
-        if self.dragging:
-            # Nếu đang kéo, cập nhật vị trí của ảnh
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            drag_offset = (mouse_x - self.dot_position[0], mouse_y - self.dot_position[1])
-            image_position = (image_position[0] + drag_offset[0], image_position[1] + drag_offset[1])
-            self.dot_position = (mouse_x, mouse_y)
-    
-    def handle_events(self, event):
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # Nếu là nút trái chuột
-                self.dragging = True
-                self.last_mouse_pos = pygame.mouse.get_pos()
-        elif event.type == pygame.MOUSEMOTION:
-            if self.dragging:
-                # Tính khoảng di chuyển của chuột
-                mouse_x, mouse_y = pygame.mouse.get_pos()
-                dx = mouse_x - self.last_mouse_pos[0]
-                dy = mouse_y - self.last_mouse_pos[1]
-
-                # Di chuyển ảnh theo khoảng di chuyển của chuột
-                self.dot_position = (self.dot_position[0] + dx / (4 * self.zoom_factor),
-                                    self.dot_position[1] + dy / (4 * self.zoom_factor))
-
-                # Lưu lại vị trí chuột cho lần tiếp theo
-                self.last_mouse_pos = (mouse_x, mouse_y)
-
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:
-                self.dragging = False
+        pygame.draw.rect(self.screen, (150, 150, 150), self.background_rect, 5)
 
     def handle_zoom(self, event):
         # Xử lý sự kiện zoom
@@ -112,3 +86,34 @@ class Map(pygame.sprite.Sprite):
 
         # Gán giá trị mới cho self.dot_position
         self.dot_position = (new_x, new_y)
+
+    def draw_mini_frame(self):
+        mini_frame_size = (200, 150)  # Điều chỉnh kích thước nếu cần
+        screen_width, screen_height = self.screen.get_size()
+
+        mini_frame_rect = pygame.Rect(screen_width - 10 - mini_frame_size[0], screen_height - 10 - mini_frame_size[1], *mini_frame_size)
+
+        # Tính toán vị trí và kích thước của mini-map bên trong khung
+        mini_map_size = (mini_frame_size[0], mini_frame_size[1])
+
+        # Giảm kích thước ảnh gốc để vừa với khung mini-map
+        scaled_image = pygame.transform.scale(self.original_image, mini_map_size)
+
+        # Vẽ nền của khung sử dụng ảnh đã giảm kích thước
+        self.screen.blit(scaled_image, mini_frame_rect.topleft)
+
+        # Vẽ viền của khung
+        pygame.draw.rect(self.screen, (150, 150, 150), mini_frame_rect, 2)
+
+        # Tính toán hệ số tỉ lệ giữa kích thước ảnh gốc và kích thước mini-map
+        scale_factor_x = mini_frame_size[0] / self.original_size[0]
+        scale_factor_y = mini_frame_size[1] / self.original_size[1]
+
+        # Vẽ chấm biểu thị vị trí của người chơi trên mini-map
+        dot_position_on_mini_map = (
+            int(self.dot_position[0] * scale_factor_x) + mini_frame_rect.x,
+            int(self.dot_position[1] * scale_factor_y) + mini_frame_rect.y
+        )
+        pygame.draw.circle(self.screen, (255, 0, 0), dot_position_on_mini_map,3)
+
+# vẫn chưa làm được kéo map big :(((

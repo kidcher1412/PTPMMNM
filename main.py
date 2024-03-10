@@ -177,10 +177,10 @@ class Game:
 							show_map_preview = not show_map_preview
 							# ngăn không cho thao tác đi và bắng khi mở map
 							self.player.Viewing_Map = not self.player.Viewing_Map
-					elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEMOTION:
+					elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEMOTION:
 						if self.player.Viewing_Map:
 							MiniMap.handle_zoom(event)	
-							# MiniMap.handle_events(event)
+
 					
 			# Thay đổi ảnh của mouse_img dựa trên trạng thái nhấn tab
 			if self.player.Viewing_Map:
@@ -190,7 +190,8 @@ class Game:
 
 			if show_map_preview:
 				MiniMap.draw_map_preview(self.map_data)
-
+			else:
+				MiniMap.draw_mini_frame()
 			# draw custom mouse to target
 			mouse_x, mouse_y = pygame.mouse.get_pos()
 			self.display_surface.blit(mouse_img, (mouse_x - 50 // 2, mouse_y - 50 // 2))
