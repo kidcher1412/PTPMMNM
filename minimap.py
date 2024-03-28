@@ -1,5 +1,5 @@
 import pygame
-import sys
+
 
 class Map(pygame.sprite.Sprite):
     def __init__(self, screen):
@@ -61,9 +61,9 @@ class Map(pygame.sprite.Sprite):
 
     def handle_zoom(self, event):
         # Xử lý sự kiện zoom
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 4:  # Lăn lên
+        if event.button == 4:  # Lăn lên
             self.zoom_factor = min(self.max_zoom, self.zoom_factor + 0.1)
-        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 5:  # Lăn xuống
+        elif event.button == 5:  # Lăn xuống
             self.zoom_factor = max(self.min_zoom, self.zoom_factor - 0.1)
 
         # Tính toán kích thước ảnh sau khi zoom

@@ -10,6 +10,8 @@ import ctypes
 from minimap import Map
 from oderplayer import OderPlayer
 
+from chatting import Chatting
+
 # Ẩn chuột mặc định của hệ điều hành
 #change test
 ctypes.windll.user32.ShowCursor(False)
@@ -21,6 +23,7 @@ class AllSprites(pygame.sprite.Group):
 		self.offset = vector()
 		self.display_surface = pygame.display.get_surface()
 		self.bg = pygame.image.load('p1_setup/graphics/other/bg.png').convert()
+		
 		
 
 	def customize_draw(self,player):
@@ -137,13 +140,20 @@ class Game:
 			if obj.name == 'Cactus':
 				Cactus((obj.x, obj.y), [self.all_sprites, self.monsters], PATHS['cactus'], self.obstacles, self.player, self.create_bullet, self.create_item)
 
+	def play_state(self):
+		self.player.direction.x = 0
+		self.player.direction.y = 0
 
 	def run(self):
 		MiniMap = Map(self.display_surface)
+		chat = Chatting(self.display_surface)
 		show_map_preview = False
+		name='abc'
+		show_chat = False
 		mouse_img_normal = pygame.image.load('./p1_setup/graphics/other/mouse.png')
 		mouse_img_tab = pygame.image.load('./p1_setup/graphics/map/icon_tim_kiem.png')
 		while True:
+			
 			# event loop 
 			self.player.handle_item(self.items)
 			dt = self.clock.tick() / 1000
@@ -156,42 +166,51 @@ class Game:
 			self.display_surface.fill('black')
 			self.all_sprites.customize_draw(self.player)
 
-			self.player.draw_healthSceen(self.display_surface)
-			self.player.draw_cooldown_skill(self.display_surface)
+
+			if not self.player.Viewing_Map:
+				self.player.draw_healthSceen(self.display_surface)
+				self.player.draw_cooldown_skill(self.display_surface)
+				self.play_state()
 			self.player.draw_damege_lost(self.display_surface)
 
 			
 			MiniMap.update_dot_position(self.player.pos)
 			# map show
 			for event in pygame.event.get():
-					if event.type == pygame.QUIT:
-						pygame.quit()
-						sys.exit()
-					elif event.type == pygame.KEYDOWN:
-						
+				#sự kiện nhập input
+				if show_chat:
+
+					chat.handle_events(event)
+				if event.type == pygame.QUIT:
+					pygame.quit()
+					sys.exit()
+				
+				elif event.type == pygame.KEYDOWN:
+					if not show_chat:
 						if event.key == pygame.K_TAB:
-							self.player.direction.x = 0
-							self.player.direction.y = 0
-
-							# Hiển thị hoặc ẩn bản đồ thu nhỏ tùy thuộc vào trạng thái hiện tại
-							show_map_preview = not show_map_preview
-							# ngăn không cho thao tác đi và bắng khi mở map
 							self.player.Viewing_Map = not self.player.Viewing_Map
-					elif event.type == pygame.MOUSEBUTTONDOWN or event.type == pygame.MOUSEBUTTONUP or event.type == pygame.MOUSEMOTION:
-						if self.player.Viewing_Map:
-							MiniMap.handle_zoom(event)	
-
-					
-			# Thay đổi ảnh của mouse_img dựa trên trạng thái nhấn tab
-			if self.player.Viewing_Map:
+							show_map_preview = not show_map_preview
+					if not show_map_preview:
+						if event.key == pygame.K_RETURN:
+							show_chat = True
+							self.player.Viewing_Map = True
+						elif event.key == pygame.K_ESCAPE:
+							show_chat = False
+							self.player.Viewing_Map = False
+				elif event.type == pygame.MOUSEBUTTONDOWN:
+					if self.player.Viewing_Map:								
+						MiniMap.handle_zoom(event)
+							
+			if show_chat:
+				chat.show_chat(name)
+			elif self.player.Viewing_Map:
+				MiniMap.draw_map_preview(self.map_data)
 				mouse_img = mouse_img_tab
 			else:
+				chat.mini_chat(name)
+				MiniMap.draw_mini_frame()
 				mouse_img = mouse_img_normal
 
-			if show_map_preview:
-				MiniMap.draw_map_preview(self.map_data)
-			else:
-				MiniMap.draw_mini_frame()
 			# draw custom mouse to target
 			mouse_x, mouse_y = pygame.mouse.get_pos()
 			self.display_surface.blit(mouse_img, (mouse_x - 50 // 2, mouse_y - 50 // 2))
