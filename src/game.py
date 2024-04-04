@@ -18,7 +18,9 @@ from settings import (
     WINDOW_HEIGHT,
 )
 
-from minimap import Map
+from src.desktop.minimap import Map
+# from src.desktop.chatting import Chatting
+
 
 
 class Game:
@@ -32,6 +34,9 @@ class Game:
         self.show_map_preview = False
         self.map_data = []
         self.map_preview_surface = None  # Surface to hold the map preview
+        self.chat = None
+
+        self.show_chat = False
 
         pygame.display.set_caption(GAME_TITLE)
 
@@ -225,6 +230,8 @@ class Game:
         action(*args, **kwargs)
 
     def run(self) -> None:
+
+        # self.chat = Chatting(self.display_surface)
         while True:
             self.handle_events()
             dt = self.clock.tick(FRAME_RATE_LIMITER) / 1000
@@ -244,10 +251,12 @@ class Game:
             # print(self.map["player"].pos)
 			# map show
             for event in pygame.event.get():
+
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
+                    
                 	if event.key == pygame.K_TAB:
                             self.map["player"].direction.x = 0
                             self.map["player"].direction.y = 0
@@ -256,10 +265,11 @@ class Game:
 
                             # Hiển thị hoặc ẩn bản đồ thu nhỏ tùy thuộc vào trạng thái hiện tại
                             self.show_map_preview = not self.show_map_preview
+                            
                             self.map["player"].Viewing_Map = not self.map["player"].Viewing_Map
 
                             # ngăn không cho thao tác đi và bắn khi mở map
-                            self.map["player"].Viewing_Map = not self.map["player"].Viewing_Map
+                            # self.map["player"].Viewing_Map = not self.map["player"].Viewing_Map
                             if self.show_map_preview:
                                 # Generate map preview surface if not exists
                                 if self.map_preview_surface is None:
@@ -267,10 +277,17 @@ class Game:
                                     self.map_preview_surface.fill((0, 0, 0, 200))  # Semi-transparent background
                                 # Draw map preview
                                 self.MiniMap.draw_map_preview(self.map_data, self.map_preview_surface)
-                            
+                # elif event.key == pygame.K_RETURN:
+                #     self.show_chat = not self.show_chat
+
+                elif self.show_chat:
+                    self.chat.handle_events(event)
+
+                        
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if self.map["player"].Viewing_Map:								
                         self.MiniMap.handle_zoom(event)
+
 
             # Blit map preview surface if it exists and show_map_preview is True
             if self.map_preview_surface and self.show_map_preview:
