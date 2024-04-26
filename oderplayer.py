@@ -4,13 +4,19 @@ from entity import Entity
 from settings import * 
 
 
-class OtherPlayer(Entity):
-	def __init__(self, pos, groups, path, collision_sprites, create_bullet, create_item):
+class OderPlayer(Entity):
+	def __init__(self, pos, groups, path, collision_sprites, create_bullet, create_item, spawn,team, name):
+		self.spawn = spawn
+		self.team = team
+		self.name = name
 		super().__init__(pos, groups, path, collision_sprites,create_item)
 		self.create_bullet = create_bullet
 		self.bullet_shot = False
 		self.health = 5
+		self.max_health = 5
 		self.face_direction = vector(0, 0)  # New variable for facing direction
+		self.direction = vector(0, 0)  # New variable for facing direction
+
 		self.last_slide_time = pygame.time.get_ticks()
 		self.skill = 'gun'
 		
@@ -18,12 +24,6 @@ class OtherPlayer(Entity):
 		self.sliding_distance = 150   # Thời gian lướt nhanh (tính bằng khoan cach man hinh)
 		self.slide_cooldown = 4000   # Thời gian giữa các lần lướt nhanh (tính bằng giây)
 
-
-	#override
-	def draw_damege_lost(self, screen):
-		if not self.is_vulnerable:
-			lost_image = pygame.image.load('./p1_setup/graphics/heart/heart.png').convert_alpha()
-			screen.blit(lost_image, (self.rect.centerx - WINDOW_WIDTH / 2,self.rect.centery - WINDOW_HEIGHT / 2))
 
 
 
@@ -36,14 +36,22 @@ class OtherPlayer(Entity):
 		if self.attacking:
 			self.status = self.status.split('_')[0] + '_attack'
 
-	def update_oder_player(self, order_player):
-		self.attacking = order_player.attacking
-		self.direction.x = order_player.direction.x
-		self.direction.y = order_player.direction.y
-		self.status = order_player.status
-		self.health = order_player.health
-		self.attacking = order_player.attacking
-			
+	def update_oder_player(self, direction, status, attacking, bullet_direction):
+		# self.attacking = newdata.attacking
+		self.direction = direction
+		self.status = status
+		if not self.attacking == attacking:
+			self.frame_index = 0
+			self.bullet_shot = False
+		self.attacking = attacking
+		self.bullet_direction = bullet_direction
+		print(self.bullet_direction)
+
+		# self.status = newdata.status
+		# self.health = newdata.health
+		# self.attacking = newdata.attacking
+		# self.status = newdata
+		
 
 	def animate(self,dt):
 		current_animation = self.animations[self.status]
@@ -64,14 +72,14 @@ class OtherPlayer(Entity):
 		self.image = current_animation[int(self.frame_index)]
 		self.mask = pygame.mask.from_surface(self.image)
   
+
+
 	def handle_item(self, items):
 		items_nearby= pygame.sprite.spritecollide(self, items, True, pygame.sprite.collide_mask)
 		for item in items_nearby:
 			print("nhận hiệu ứng "+item.type)
 			self.health+=1
 			
-
-
 	def update(self,dt):
 		self.get_status()
 		self.move(dt)

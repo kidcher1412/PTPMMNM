@@ -1,3 +1,4 @@
+import time
 import pygame
 import sys
 import threading
@@ -14,7 +15,9 @@ from chatting import Chatting
 from health_bar import HealthBar
 from health_bar import AmmoBar
 from entity import Entity
-from test_ import Update_fireStatus
+
+
+from test_ import HubGame
 
 
 # Ẩn chuột mặc định của hệ điều hành
@@ -44,12 +47,15 @@ class AllSprites(pygame.sprite.Group):
 
 class Game:
     def __init__(self):
+        self.name = "test"
+        self.team = "B"
+        self.update_online = HubGame(self.name)
+
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('Western shooter')
         self.clock = pygame.time.Clock()
         self.bullet_surf = pygame.image.load('p1_setup/graphics/other/particle.png').convert_alpha()
-        self.name = "test"
 
 
 
@@ -68,10 +74,8 @@ class Game:
         self.health_bar = pygame.sprite.Group()
         self.ammo_bar = pygame.sprite.Group()
 
-        self.team = "B"
         
-        self.update_online = Update_fireStatus(self.name)
-        self.list_player = self.update_online.get_all_players(self.name)
+
         self.setup()
         self.music = pygame.mixer.Sound('p1_setup/sound/music.mp3')
         self.music.play(loops=-1)
@@ -81,9 +85,14 @@ class Game:
         self.ammo_bars = {}
         
         # Khởi tạo luồng phụ để cập nhật trạng thái trực tuyến
+        self.list_player = {}
+        self.list_player_command = {}
+
+
         self.online_status_thread = threading.Thread(target=self.update_online_status)
         self.online_status_thread.daemon = True
         self.online_status_thread.start()
+
 
     def create_item(self, pos, type):
         Item(pos, type, [self.all_sprites, self.items])
@@ -172,63 +181,134 @@ class Game:
         )
         self.player.team = self.team
         self.player.name = self.name
-        
-        
-		#init other player
-        for key_username,other_player_data in self.list_player.items():
-        #   print(str(other_player_data))
-          spawn_fist_other = self.spawnA if other_player_data["team"] == "A" else self.spawnB
-          print(spawn_fist_other)
-          OderPlayer(
-              pos=spawn_fist_other,
-              groups=[self.all_sprites, self.players],
-              path=PATHS['player'],
-              collision_sprites=self.obstacles,
-              create_bullet=self.create_bullet ,
-              create_item=self.create_item,
-              spawn=spawn_fist,
-              team= other_player_data["team"],
-              name= key_username
-		  )
-          
 
+        self.Join_Fist()
+        dataUpdate = {"name": self.name,"command": "", "pos":str(self.player.pos), "direction": str(self.player.face_direction)}
+        self.update_online.send_data_command(dataUpdate)
+        #lay nhung player ton tai san
+
+        self.list_player = self.update_online.client.list_player
+        self.list_player_command = self.update_online.client.list_player_command
+
+        # print(self.list_player)
+        for keyname, valPlayer in self.list_player.items():
+            if not valPlayer["name"] == self.name:
+                spawn_fist_other = self.spawnA if valPlayer["team"] == "A" else self.spawnB
+                point = eval(self.list_player_command[valPlayer["name"]]["pos"])
+                # print((point[0],point[1]))
+
+                OderPlayer(
+                    pos= (point[0],point[1]),
+                    groups=[self.all_sprites, self.players],
+                    path=PATHS['player'],
+                    collision_sprites=self.obstacles,
+                    create_bullet=self.create_bullet ,
+                    create_item=self.create_item,
+                    spawn=spawn_fist_other,
+                    team= valPlayer["team"],
+                    name= valPlayer["name"]
+                )
+                print("da sinh ra other "+ valPlayer["name"])
+    def check_name_in_sprite(self, name):
+        check = False
+        for sprite in self.players:
+            if sprite.name == name:
+                check = True
+                break
+        return check
+
+    def check_sprite_in_list(self):
+        for sprite in self.players:
+            if not sprite.name == self.name:
+                check = False
+                for keyname, val in self.list_player_command.items():
+                        if sprite.name == keyname:
+                            check = True
+                            break
+                if not check: sprite.kill()
 
 
     def play_state(self):
         self.player.direction.x = 0
         self.player.direction.y = 0
 
+
     #update online
+    def Join_Fist(self):
+        dataJoin = {
+            "spawn": str(self.player.spawn),
+            "name": self.player.name,
+            "team": self.player.team,
+            "direction": str(self.player.direction),
+            "health": self.player.health,
+            "is_vulnerable": self.player.is_vulnerable,
+            "attacking": self.player.attacking,
+            "ammo": self.player.ammo,
+            "Pos": str(self.player.pos),
+            "bullet_direction": str(self.player.bullet_direction),
+            "status": self.player.status
+        }
+        self.update_online.send_join(dataJoin)
     def update_online_status(self):
-        while True:
-            dataUpdate = {
-                "spawn": str(self.player.spawn),
-                "name": self.player.name,
-                "team": self.player.team,
-                "direction": str(self.player.direction),
-                "health": self.player.health,
-                "is_vulnerable": self.player.is_vulnerable,
-                "attacking": self.player.attacking,
-                "ammo": self.player.ammo,
-                "Pos": str(self.player.pos),
-                "bullet_direction": str(self.player.bullet_direction),
-                "status": self.player.status
-            }
-            self.update_online.update_player_status(dataUpdate)
+        # while True:
+
+            self.Join_Fist()
+            dataUpdate = {"name": self.name,"command": self.player.command, "pos":str(self.player.pos), "direction": str(self.player.face_direction)}
+            self.update_online.send_data_command(dataUpdate)
+                
             # Lấy danh sách người chơi từ luồng phụ
-            self.list_player = self.update_online.get_all_players(self.player.name)
+            self.list_player = self.update_online.client.list_player
+            self.list_player_command = self.update_online.client.list_player_command
+
             # del self.list_player[self.player.name]
             # print(self.list_player)
-            
+
+            #cap nhat ammo
+            list_ammo = []
+            for ammo in self.bullets:
+                list_ammo.append(ammo.create_data_socket_this_bullet(self.name))
+            print(list_ammo)
 
     def update_other_player_on_server(self):
+        # print("==========")
+        # print(self.list_player)
+        # print(self.list_player_command)
+
+
         for key_username, user_data in self.list_player.items():
+            if not self.check_name_in_sprite(key_username):
+                spawn_fist_other = self.spawnA if user_data["team"] == "A" else self.spawnB
+                point = eval(self.list_player_command[user_data["name"]]["pos"])
+
+                OderPlayer(
+                    pos= (point[0],point[1]),
+                    groups=[self.all_sprites, self.players],
+                    path=PATHS['player'],
+                    collision_sprites=self.obstacles,
+                    create_bullet=self.create_bullet ,
+                    create_item=self.create_item,
+                    spawn=spawn_fist_other,
+                    team= user_data["team"],
+                    name= user_data["name"]
+                )
+                print("da sinh ra other "+ user_data["name"])
+        for key_username, user_data in self.list_player_command.items():
+            directionUpdate = eval(user_data["direction"])
+            # check nguoi cho co trong Sprite khong ,=> khoi tao
+            # if not self.check_name_in_sprite():
             for other_player in self.players.sprites():
                 if other_player.name == key_username:
-                    other_player.update_oder_player(
-                        user_data["status"]
-					)
+                    if not other_player.name == self.name:
+                        bullet_point = eval(self.list_player[user_data["name"]]["bullet_direction"])
 
+                        other_player.update_oder_player(
+                            direction= vector(directionUpdate[0],directionUpdate[1]),
+                            status = self.list_player[key_username]["status"],
+                            attacking = self.list_player[key_username]["attacking"],
+                            bullet_direction = vector(float(bullet_point[0]),float(bullet_point[1]))
+
+                        )
+        self.check_sprite_in_list()
     def run(self):
         MiniMap = Map(self.display_surface)
         chat = Chatting(self.display_surface)
@@ -237,6 +317,7 @@ class Game:
         show_chat = False
         mouse_img_normal = pygame.image.load('./p1_setup/graphics/other/mouse.png')
         mouse_img_tab = pygame.image.load('./p1_setup/graphics/map/icon_tim_kiem.png')
+
         while True:
             # event loop 
             self.player.handle_item(self.items)
@@ -294,15 +375,23 @@ class Game:
                 MiniMap.draw_mini_frame()
                 mouse_img = mouse_img_normal
 
-            # # Chạy luồng phụ để cập nhật trạng thái trực tuyến
-            if not self.online_status_thread.is_alive():
-                self.online_status_thread = threading.Thread(target=self.update_online_status)
-                self.online_status_thread.daemon = True
-                self.online_status_thread.start()
-            self.update_other_player_on_server()
 			#cap nhat trang thai tung nguoi choi khac
 
+            # # Chạy luồng phụ để cập nhật trạng thái trực tuyến
+            # if not self.online_status_thread.is_alive():
+            #     self.online_status_thread = threading.Thread(target=self.update_online_status)
+            #     self.online_status_thread.daemon = True
+            #     self.online_status_thread.start()
+            self.update_online_status()
+            self.update_other_player_on_server()
+
 			
+            # print(self.list_player)
+            # Kiểm tra xem đã đủ thời gian để chạy lệnh mới chưa
+            # current_time = time.time()
+            # if current_time - last_command_time >= self.command_interval:
+            #     self.update_online_status()
+            #     last_command_time = current_time
             pygame.display.update()
 
 if __name__ == '__main__':

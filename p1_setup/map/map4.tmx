@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="60" height="60" tilewidth="64" tileheight="64" nextobjectid="308">
+ <tileset firstgid="1" source="../data/ground.tsx"/>
+ <tileset firstgid="249" source="../data/fence.tsx"/>
+ <tileset firstgid="393" source="../data/objects.tsx"/>
+ <imagelayer name="bg">
+  <image source="../graphics/other/bg.png"/>
+ </imagelayer>
+ <layer name="Fence" width="60" height="60">
+  <data encoding="base64" compression="zlib">
+   eJztmDEOwjAMRVMWBhZuBQI2xEa5Bgv3AI4KEhLu0KWpS1LiEn7+k75YbJRXIWL34Zx7FZJ55dxMUgr0xYa+2NAXmxjfjdRtO9Ho1sXkE1rfLqA3xnef+e/gQF8P+urQdxwr+Z61wbPL1deK1L65Q18f+mJDX2ys7qN2twiZ4S36Nax829qQ/xCLfg0r36PU1pLTyPN+26+BNF+FgOTL+dmHvjr0zQv6+tBXh755QV8f+upM7Ru7E/7ifU7KvdViJ0ztm/KMFjthal+rvTUVfH+FDX11cr9/Q0Dy/fd5Ixb6+tBXpwTfuhrO2L6QDNFXHzLT8f7Fhr7Y0BebEn0XE/s+O5mSxvfccwbULMX3Ip9XyU1yB0/j+gYCZM4H
+  </data>
+ </layer>
+ <objectgroup name="Entities">
+  <object name="Player" id="303" x="3432" y="200" width="32" height="32"/>
+  <object name="oder-Player" id="304" x="172" y="1152" width="32" height="36"/>
+
+ </objectgroup>
+ <objectgroup draworder="index" name="Object">
+  <object id="284" gid="393" x="1704" y="2100" width="432" height="376"/>
+  <object id="286" gid="411" x="3234" y="3560" width="252" height="376"/>
+  <object id="287" gid="411" x="138" y="3204" width="252" height="376"/>
+  <object id="288" gid="410" x="3460" y="614" width="128" height="188"/>
+  <object id="289" gid="409" x="344" y="640" width="128" height="128"/>
+  <object id="290" gid="409" x="116" y="648" width="128" height="128"/>
+  <object id="291" gid="409" x="252" y="836" width="128" height="128"/>
+  <object id="293" gid="403" x="1560" y="480" width="608" height="504"/>
+  <object id="294" gid="402" x="1716" y="3634" width="384" height="484"/>
+  <object id="295" gid="395" x="1424" y="1454" width="56" height="44"/>
+  <object id="296" gid="395" x="1284" y="2466" width="56" height="44"/>
+  <object id="297" gid="395" x="2504" y="2406" width="56" height="44"/>
+  <object id="298" gid="394" x="2440" y="1488" width="56" height="88"/>
+  <object id="299" gid="404" x="1412" y="346" width="128" height="108"/>
+  <object id="300" gid="404" x="1168" y="1790" width="128" height="108"/>
+ </objectgroup>
+</map>
