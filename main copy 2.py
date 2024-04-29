@@ -12,8 +12,7 @@ from monster import Coffin, Cactus
 from minimap import Map
 from oderplayer import OderPlayer
 from chatting import Chatting
-from health_bar import HealthBar
-from health_bar import AmmoBar
+from health_bar import AmmoBar , NameBar , HealthBar
 from entity import Entity
 
 
@@ -73,7 +72,10 @@ class Game:
         self.skills = pygame.sprite.Group()
         self.health_bar = pygame.sprite.Group()
         self.ammo_bar = pygame.sprite.Group()
-
+        self.name_bar = pygame.sprite.Group()
+        self.health_bars = {}
+        self.ammo_bars = {}
+        self.name_bars = {}
         
 
         self.setup()
@@ -81,8 +83,7 @@ class Game:
         self.music.play(loops=-1)
 
         self.current_attack = None
-        self.health_bars = {}
-        self.ammo_bars = {}
+
         
         # Khởi tạo luồng phụ để cập nhật trạng thái trực tuyến
         self.list_player = {}
@@ -115,6 +116,11 @@ class Game:
         self.ammo_bars[entity] = AmmoBar(
             entity, self.ammo_bar, self.all_sprites
         )
+    def create_name_bar(self, entity: Entity):
+        self.name_bars[entity] = NameBar(
+            entity, self.name_bar, self.all_sprites
+        )
+
 
     def bullet_collision(self):
         # bullet obstacle collision
@@ -130,6 +136,7 @@ class Game:
                     sprite.damage()
                     self.create_health_bar(sprite)
                     
+                    
             # player bullet collision
             sprites = pygame.sprite.spritecollide(bullet, self.players, False, pygame.sprite.collide_mask)
             if sprites:
@@ -137,6 +144,7 @@ class Game:
                 for sprite in sprites:
                     sprite.damage()
                     self.create_health_bar(sprite)
+                    # self.create_name_bar(sprite)
      
         # # player bullet collision
         # if pygame.sprite.spritecollide(self.player, self.bullets, True, pygame.sprite.collide_mask):
@@ -181,6 +189,7 @@ class Game:
         )
         self.player.team = self.team
         self.player.name = self.name
+        self.create_name_bar(self.player)
 
         self.Join_Fist()
         dataUpdate = {"name": self.name,"command": "", "pos":str(self.player.pos), "direction": str(self.player.face_direction)}
@@ -197,7 +206,7 @@ class Game:
                 point = eval(self.list_player_command[valPlayer["name"]]["pos"])
                 # print((point[0],point[1]))
 
-                OderPlayer(
+                initOther =  OderPlayer(
                     pos= (point[0],point[1]),
                     groups=[self.all_sprites, self.players],
                     path=PATHS['player'],
@@ -208,6 +217,7 @@ class Game:
                     team= valPlayer["team"],
                     name= valPlayer["name"]
                 )
+                self.create_name_bar(initOther)
                 print("da sinh ra other "+ valPlayer["name"])
     def check_name_in_sprite(self, name):
         check = False
@@ -244,7 +254,7 @@ class Game:
             "is_vulnerable": self.player.is_vulnerable,
             "attacking": self.player.attacking,
             "ammo": self.player.ammo,
-            "Pos": str(self.player.pos),
+            "pos": str(self.player.pos),
             "bullet_direction": str(self.player.bullet_direction),
             "status": self.player.status
         }
@@ -280,7 +290,7 @@ class Game:
                 spawn_fist_other = self.spawnA if user_data["team"] == "A" else self.spawnB
                 point = eval(self.list_player_command[user_data["name"]]["pos"])
 
-                OderPlayer(
+                initOther = OderPlayer(
                     pos= (point[0],point[1]),
                     groups=[self.all_sprites, self.players],
                     path=PATHS['player'],
@@ -291,6 +301,7 @@ class Game:
                     team= user_data["team"],
                     name= user_data["name"]
                 )
+                self.create_name_bar(initOther)
                 print("da sinh ra other "+ user_data["name"])
         for key_username, user_data in self.list_player_command.items():
             directionUpdate = eval(user_data["direction"])
@@ -300,12 +311,15 @@ class Game:
                 if other_player.name == key_username:
                     if not other_player.name == self.name:
                         bullet_point = eval(self.list_player[user_data["name"]]["bullet_direction"])
+                        point = eval(self.list_player_command[user_data["name"]]["pos"])
                         print(vector(float(bullet_point[0]),float(bullet_point[1])))
                         other_player.update_oder_player(
                             direction= vector(directionUpdate[0],directionUpdate[1]),
                             status = self.list_player[key_username]["status"],
                             attacking = self.list_player[key_username]["attacking"],
-                            bullet_direction = vector(float(bullet_point[0]),float(bullet_point[1]))
+                            bullet_direction = vector(float(bullet_point[0]),float(bullet_point[1])),
+                            pos = vector(point[0],point[1]),
+                            is_vulnerable = self.list_player[key_username]["is_vulnerable"]
                         )
         self.check_sprite_in_list()
     def run(self):
@@ -327,7 +341,6 @@ class Game:
             self.bullet_collision()
             if self.player.ammo == 0:
                 self.create_ammo_bar(self.player)
-
             # draw groups
             self.display_surface.fill('black')
             self.all_sprites.customize_draw(self.player)

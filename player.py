@@ -137,29 +137,6 @@ class Player(Entity):
 					# no ammo
 					pass
 
-			elif mouse_buttons[2]:  # nếu nhấn chuột phải
-				current_time = pygame.time.get_ticks()
-				if current_time - self.last_slide_time > self.slide_cooldown:
-					backup_status = self.status
-					# self.status = 'lurking'  # Add a new status for lurking movement
-					mouse_position = pygame.mouse.get_pos()
-					player_center = pygame.display.get_surface().get_rect().center
-					move_direction = vector(mouse_position[0] - player_center[0], mouse_position[1] - player_center[1])
-					self.direction = move_direction.normalize()  # Chỉ cần chuẩn hóa hướng, không cần tốc độ
-					distance_to_move = min(self.sliding_distance, move_direction.length())  # Chọn khoảng cách ngắn nhất
-
-					# Áp dụng độ dãn cho acceleration
-					acceleration = 1
-					t = min(1, distance_to_move / self.sliding_distance)  # Tính thời gian t trong khoảng [0, 1]
-					eased_acceleration = acceleration * (t ** 3)  # Áp dụng độ dãn (exponential easing)
-
-					# Sử dụng hàm lerp để di chuyển với tốc độ tăng lên
-					self.pos = vector.lerp(self.pos, self.pos + self.direction * (distance_to_move * eased_acceleration), t)
-
-					self.rect.center = round(self.pos.x), round(self.pos.y)
-					self.hitbox.center = round(self.pos.x), round(self.pos.y)
-					self.last_slide_time = current_time
-					self.status = backup_status
 			self.face_direction = self.direction
 
 	def animate(self,dt):

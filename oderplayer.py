@@ -36,7 +36,7 @@ class OderPlayer(Entity):
 		if self.attacking:
 			self.status = self.status.split('_')[0] + '_attack'
 
-	def update_oder_player(self, direction, status, attacking, bullet_direction):
+	def update_oder_player(self, direction, status, attacking, bullet_direction, pos , is_vulnerable):
 		# self.attacking = newdata.attacking
 		self.direction = direction
 		self.status = status
@@ -45,13 +45,28 @@ class OderPlayer(Entity):
 			self.bullet_shot = False
 		self.attacking = attacking
 		self.bullet_direction = bullet_direction
-		print(self.bullet_direction)
+		self.pos = pos
+		self.is_vulnerable = is_vulnerable
 
 		# self.status = newdata.status
 		# self.health = newdata.health
 		# self.attacking = newdata.attacking
 		# self.status = newdata
-		
+	#overright
+	def move(self,dt):
+		# normalize 
+		if self.direction.magnitude() != 0:
+			self.direction = self.direction.normalize()
+
+		# horiztonal movement
+		self.hitbox.centerx = round(self.pos.x)
+		self.rect.centerx = self.hitbox.centerx
+		self.collision('horizontal')
+
+		# vertical movement
+		self.hitbox.centery = round(self.pos.y)
+		self.rect.centery = self.hitbox.centery
+		self.collision('vertical')
 
 	def animate(self,dt):
 		current_animation = self.animations[self.status]

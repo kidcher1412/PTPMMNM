@@ -130,3 +130,38 @@ class AmmoBar(Sprite):
         self.rect = self.image.get_rect(
             midbottom=Vector2(self.entity.rect.midtop) + Vector2(0, -15)
         )
+
+
+class NameBar(Sprite):
+    def __init__(self, entity: Entity, *groups: list[Group]) -> None:
+        super().__init__(*groups)
+        self.alive_timer = Timer(3000)
+        self.alive_timer.activate()
+        self.entity = entity
+        self.text = self.entity.name
+
+        # Khởi tạo hình ảnh và vị trí cho NameBar
+        self.image = Surface((self.entity.rect.width // 2, 16), SRCALPHA)
+        self.rect = self.image.get_rect(
+            midbottom=Vector2(self.entity.rect.midtop) + Vector2(0, -35)
+        )
+
+    def update(self, dt) -> None:
+        """Updates the NameBar image with the text."""
+        if not self.entity.alive():
+            self.kill()
+            return
+        # Vẽ chữ "text" trên hình ảnh của NameBar
+        font = pygame.font.Font(None, 20)  # Chọn font và kích thước chữ
+        text_surface = font.render(self.text, True, (255, 255, 255))  # Tạo hình ảnh từ chuỗi "text"
+        text_rect = text_surface.get_rect(center=self.image.get_rect().center)  # Lấy vị trí của chuỗi "text"
+        
+        # Xóa hình ảnh cũ của NameBar
+        self.image.fill((0, 0, 0, 0))
+        # Vẽ chuỗi "text" lên hình ảnh của NameBar
+        self.image.blit(text_surface, text_rect)
+        
+        # Cập nhật vị trí của NameBar
+        self.rect = self.image.get_rect(
+            midbottom=Vector2(self.entity.rect.midtop) + Vector2(0, -35)
+        )
