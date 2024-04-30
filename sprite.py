@@ -12,17 +12,40 @@ class Bullet(pygame.sprite.Sprite):
         super().__init__(groups)
         self.image = surf
         self.mask = pygame.mask.from_surface(self.image)
-        self.rect = self.image.get_rect(center = pos)
+        self.rect = self.image.get_rect(center=pos)
+        self.start_pos = pos
         
-        #float based movement
+        # float based movement
         self.pos = pygame.math.Vector2(self.rect.center)
         self.direction = direction
         self.speed = 350
         
+        # track distance traveled
+        self.distance_traveled = 0
+        self.max_distance = 700  # max distance bullet can travel
         
-    def update(self,dt):
-        self.pos += self.direction * self.speed * dt
+    def create_data_socket_this_bullet(self, name):
+         return_val=  {
+              "playername": name,
+              "pos_start": str(self.start_pos),
+              "pos":str(self.pos),                          #make data [x,y]
+              "direction": str(self.direction),             #make data [x,y]
+              "distance_traveled": self.distance_traveled
+         }
+         return return_val
+    def update(self, dt):
+        # calculate distance moved this frame
+        distance_moved = self.speed * dt
+        self.distance_traveled += distance_moved
+        
+        # move the bullet
+        self.pos += self.direction * distance_moved
         self.rect.center = (round(self.pos.x), round(self.pos.y))
+        
+        # check if bullet has traveled max distance
+        if self.distance_traveled >= self.max_distance:
+            self.kill()  # remove bullet from sprite groups
+
   
 class Item(pygame.sprite.Sprite):
     def __init__(self, pos, type , groups):

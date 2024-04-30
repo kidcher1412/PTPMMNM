@@ -1,63 +1,104 @@
+import json
 import socket
 import threading
 
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host = '127.0.0.1'
-port = 5555
+import msgpack
 
-server_socket.bind((host, port))
-server_socket.listen()
+class Server:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.clients = {}
+        self.clients_names={}
+        self.listPlayer = {}
+        self.listPlayerCommand = {}
+        self.list_bullet ={}
+        self.is_running = False
 
-print(f"Server is listening on {host}:{port}")
+    def start(self):
+        self.socket.bind((self.host, self.port))
+        self.socket.listen(5)
+        print(f"Server is listening on {self.host}:{self.port}")
+        self.is_running = True
 
-rooms = {}
+        while self.is_running:
+            client_socket, client_address = self.socket.accept()
+            print(f"New connection from {client_address}")
+            client_thread = threading.Thread(target=self.handle_client, args=(client_socket, client_address))
+            client_thread.start()
 
-def handle_client(client_socket, addr):
-    try:
+    def handle_client(self, client_socket, client_address):
         while True:
-            data = client_socket.recv(1024).decode('utf-8')
-            if not data:
-                break
+            try:
+                self.clients[client_address] = client_socket
+                data = client_socket.recv(4096)
+                if not data:
+                    print(f"Connection with {client_address} closed")
+                    del self.clients[client_address]
 
-            parts = data.split()
-            command = parts[0]
+                    del self.listPlayer[self.clients_names[client_address]]
+                    del self.listPlayerCommand[self.clients_names[client_address]]
+                    break
 
-            if command == "CREATE_ROOM":
-                room_code = parts[1]
-                if room_code not in rooms:
-                    rooms[room_code] = []
-                    print(f"Room {room_code} created by {addr}")
-                    client_socket.send("ROOM_CREATED".encode('utf-8'))
-                    broadcast_to_clients(f"ROOM_CREATED {room_code}")
+                # print(f"Received data from {client_address}: {data.decode()}")
+                # data = json.loads(data.decode())
+                data = msgpack.unpackb(data)
+
+                self.username = data["name"]
+                self.clients_names[client_address] = self.username
+                if "command" in data:
+                    self.listPlayerCommand[data["name"]] = data
                 else:
-                    client_socket.send("ROOM_EXISTS".encode('utf-8'))
+                    self.listPlayer[data["name"]] = data
 
-    except Exception as e:
-        print(f"Connection error from {addr}: {str(e)}")
-    finally:
-        client_socket.close()
+                try:
+                    print("=======")
+                    data_to_send = {
+                        "data":{
+                            "listPlayerCommand": self.listPlayerCommand,
+                            "listPlayer": self.listPlayer
+                        }
+                    }
+                    print(data_to_send)
+                    # data_to_send = json.dumps(data_to_send)
+                    # client_socket.sendall(data_to_send.encode())
+                    data_to_send = msgpack.packb(data_to_send)
+                    client_socket.sendall(data_to_send)
+                except Exception as e:
+                    del self.clients[client_address]
 
-def broadcast_to_clients(message):
-    for client, _ in rooms.values():
-        client.send(message.encode('utf-8'))
+                    del self.listPlayer[self.clients_names[client_address]]
+                    del self.listPlayerCommand[self.clients_names[client_address]]
 
-def accept_clients():
+
+                # print(self.listPlayer)
+                # self.broadcast_data()
+            except Exception as e:
+                print("bo qua loi du lieu "+str(e))
+    def broadcast_data(self):
+        data_to_send = {
+            "data":{
+                "listPlayerCommand": self.listPlayerCommand,
+                "listPlayer": self.listPlayer
+            }
+        }
+        # data_string = json.dumps(data_to_send)
+        data_string = msgpack.packb(data_to_send)
+
+        for client_socket in self.clients.values():
+            client_socket.sendall(data_string)
+
+    def stop(self):
+        self.is_running = False
+        self.socket.close()
+
+from settings import *
+
+if __name__ == "__main__":
+    server = Server(ONLINE_ADDRESS, ONLINE_PORT)
     try:
-        while True:
-            client_socket, addr = server_socket.accept()
-            print(f"Connection established from {addr}")
-            
-            # Store client socket and address in rooms dictionary
-            rooms[addr] = (client_socket, addr)
-
-            # Create a thread to handle the client connection
-            client_handler = threading.Thread(target=handle_client, args=(client_socket, addr))
-            client_handler.start()
-
-    except Exception as e:
-        print(f"Server error: {str(e)}")
-    finally:
-        server_socket.close()
-
-# Start listening for and accepting client connections
-accept_clients()
+        server.start()
+    except KeyboardInterrupt:
+        print("Server stopped")
+        server.stop()

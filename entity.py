@@ -5,6 +5,7 @@ from pygame.math import Vector2 as vector
 from os import walk
 from math import sin
 from settings import * 
+from pygutils.timer import Timer
 
 
 
@@ -47,6 +48,19 @@ class Entity(pygame.sprite.Sprite):
 		self.hit_sound.set_volume(0.2)
 		self.shoot_sound = pygame.mixer.Sound('p1_setup/sound/bullet.wav')
 		self.shoot_sound.set_volume(0.3)
+
+        # Các biến liên quan đến đạn
+		self.max_ammo = 5  # Số lượng đạn tối đa
+		self.ammo = self.max_ammo  # Số lượng đạn hiện có
+		self.reload_time = 3000  # Thời gian nạp lại (miligiây)
+		self.last_shot_time = pygame.time.get_ticks()  # Thời điểm bắn đạn cuối cùng
+		self.reload_timer = Timer(self.reload_time)
+
+	def update_ammo(self, dt):
+		# Nếu hết đạn và đã đủ thời gian để nạp lại
+		if self.ammo == 0 and pygame.time.get_ticks() - self.last_shot_time >= self.reload_time:
+			self.ammo = self.max_ammo  # Nạp lại đạn
+			print("nap lai dan")
 
 	def blink(self):
 		if not self.is_vulnerable:
@@ -125,7 +139,7 @@ class Entity(pygame.sprite.Sprite):
 				for file_name in sorted(folder[2], key = lambda string: int(string.split('.')[0])):
 					path = folder[0].replace('\\','/') + '/' + file_name
 					surf = pygame.image.load(path).convert_alpha()
-					key = folder[0].split('\\')[-1]
+					key = folder[0].split('/')[-1]
 					self.animations[key].append(surf)
 
 	def move(self,dt):

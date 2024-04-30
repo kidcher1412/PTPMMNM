@@ -1,46 +1,118 @@
-import pygame
-import sys
-import pygame_gui
+import socket
+import json
+import threading
 
-pygame.init()
+import msgpack
 
-WIDTH , HEIGHT = 1500,800
-SCREEN = pygame.display.set_mode((WIDTH,HEIGHT))
-pygame.display.set_caption("text")
+class GameClient:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.connected = False
+        self.list_player = {}  # Dictionary to store player information
+        self.list_player_command = {}  # Dictionary to store player command
 
-CLOCK = pygame.time.Clock()
-MANAGER = pygame_gui.UIManager((WIDTH,HEIGHT))
+    def connect(self):
+        try:
+            self.socket.connect((self.host, self.port))
+            self.connected = True
+            print("Connected to server.")
+        except Exception as e:
+            print("Error:", e)
 
-TEXT_INPUT  = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350,275),(WIDTH/2,50),manager=MANAGER))
-chat_background_color = (50, 50, 50, 200)
+    def send_data(self, data):
+        if self.connected:
+            try:
+                # serialized_data = json.dumps(data)
+                # self.socket.sendall(serialized_data.encode())
+                serialized_data = msgpack.packb(data)
+                self.socket.sendall(serialized_data)
 
-def show_text(tex_to_show):
-    while True:
+            except Exception as e:
+                print("Error:", e)
+        else:
+            print("Not connected to server.")
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+    def receive_data(self):
+            # print("update")
+            if self.connected:
+                # try:
+                        received_data = self.socket.recv(2048)
+                        if received_data:
+                            # decoded_data = json.loads(received_data.decode())
+                            decoded_data = msgpack.unpackb(received_data)
 
-        SCREEN.fill("white")
-        new_text = pygame.font.SysFont("bahnschrift",100).render(f"hello,{tex_to_show}",True,"black")
-        new_text_rect = new_text.get_rect(center=(WIDTH/2,HEIGHT/2))
-        SCREEN.blit(new_text,new_text_rect)
-        CLOCK.tick(60)
-        pygame.display.update()
-def get_user_name():
-    while True:
-        UI_REFRESH_RATE = CLOCK.tick(60)/1000
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type== pygame_gui.UI_TEXT_ENTRY_FINISHED:
-                show_text(event.text)
+                            # Update list_player_command and list_player
+                            self.list_player_command = decoded_data.get("listPlayerCommand", {})
+                            # print(self.list_player_command)
+                            self.list_player = decoded_data.get("listPlayer", {})
+                        else:
+                            return None
+                # except Exception as e:
+                #     print("Error:", e)
+                #     return None
+            else:
+                print("Not connected to server.")
+                return None
 
-            MANAGER.process_events(event)
-        MANAGER.update(UI_REFRESH_RATE)
-        SCREEN.fill(chat_background_color)
-        MANAGER.draw_ui(SCREEN)
-        pygame.display.update()
-get_user_name()
+    def handle_update(self):
+        while True:
+            if self.connected:
+
+                        received_data = self.socket.recv(4096)
+                        if received_data:
+                            try:
+                                # print("======")
+                                # print(received_data.decode())
+                                # decoded_data = json.loads(received_data.decode())
+                                decoded_data = msgpack.unpackb(received_data)
+
+                                # Update list_player_command and list_player
+                                self.list_player_command = decoded_data["data"].get("listPlayerCommand", {})
+                                self.list_player = decoded_data["data"].get("listPlayer", {})
+                            except Exception as e:
+                                print("Error decoding JSON:", str(e))
+                        else:
+                            return None
+
+            else:
+                print("Not connected to server.")
+                return None
+
+    def close(self):
+        if self.connected:
+            self.socket.close()
+            self.connected = False
+            print("Disconnected from server.")
+
+    def get_list_player(self):
+        return self.list_player
+
+    def get_list_player_commmand(self):
+        return self.list_player_command
+
+from settings import *
+
+class HubGame():
+    def __init__(self,username):
+        self.username = username
+        self.client = GameClient(ONLINE_ADDRESS, ONLINE_PORT)  # Replace "localhost" with your server's IP address
+        self.client.connect()
+        receive_thread = threading.Thread(target=self.client.handle_update)
+        receive_thread.daemon = True  # Đặt luồng thành daemon để nó sẽ kết thúc khi chương trình chính kết thúc
+        receive_thread.start()
+
+    def send_join(self,player_data):
+        self.client.send_data(player_data)
+
+    def send_data_command(self,player_data):
+        self.client.send_data(player_data)
+    
+    def get_list_data(self):
+        # self.client.receive_data()  # Update list_player_command and list_player
+        return self.client.get_list_player()
+
+    def get_list_data_command(self):
+        # self.client.receive_data()  # Update list_player_command and list_player
+        return self.client.get_list_player_commmand()
