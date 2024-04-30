@@ -5,14 +5,14 @@ from settings import *
 
 
 class OderPlayer(Entity):
-	def __init__(self, pos, groups, path, collision_sprites, create_bullet, create_item, spawn,team, name):
+	def __init__(self, pos, groups, path, collision_sprites, create_bullet, create_item, spawn,team, name,health):
 		self.spawn = spawn
 		self.team = team
 		self.name = name
 		super().__init__(pos, groups, path, collision_sprites,create_item)
 		self.create_bullet = create_bullet
 		self.bullet_shot = False
-		self.health = 5
+		self.health = health
 		self.max_health = 5
 		self.face_direction = vector(0, 0)  # New variable for facing direction
 		self.direction = vector(0, 0)  # New variable for facing direction

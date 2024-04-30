@@ -49,10 +49,11 @@ class AllSprites(pygame.sprite.Group):
 
 
 class Game:
-    def __init__(self):
-        self.name = "thong"
-        self.team = "A"
-        self.update_online = HubGame(self.name)
+    def __init__(self, name, team, ipserver):
+        self.name = name
+        self.team = team
+        self.ipserver = ipserver
+        self.update_online = HubGame(self.name,self.ipserver)
 
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -226,7 +227,8 @@ class Game:
                     create_item=self.create_item,
                     spawn=spawn_fist_other,
                     team= valPlayer["team"],
-                    name= valPlayer["name"]
+                    name= valPlayer["name"],
+                    health= valPlayer["health"]
                 )
                 self.create_name_bar(initOther)
                 print("da sinh ra other "+ valPlayer["name"])
@@ -310,7 +312,8 @@ class Game:
                     create_item=self.create_item,
                     spawn=spawn_fist_other,
                     team= user_data["team"],
-                    name= user_data["name"]
+                    name= user_data["name"],
+                    health = user_data["health"]
                 )
                 self.create_name_bar(initOther)
                 print("da sinh ra other "+ user_data["name"])
@@ -335,8 +338,8 @@ class Game:
         self.check_sprite_in_list()
     def run(self):
         MiniMap = Map(self.display_surface)
-        chat = Chatting(self.display_surface)
-        death = Death(self.display_surface)
+        chat = Chatting(self.display_surface,self.name, self.ipserver)
+        death = Death(self.display_surface, self.ipserver)
         show_map_preview = False
         name = 'abc'
         show_chat = False
@@ -347,7 +350,7 @@ class Game:
             # event loop 
             if self.player.health == 0:
 
-                caser = Realtime_Data()
+                caser = Realtime_Data(self.ipserver)
                 caser.send_kill(self.name)
                 pygame.quit()
                 sys.exit()
@@ -431,5 +434,19 @@ class Game:
             pygame.display.update()
 
 if __name__ == '__main__':
-    game = Game()
+    # Kiểm tra xem có đủ số lượng tham số không
+    if len(sys.argv) != 4:
+        print("Usage: python script.py name team ipserver")
+        sys.exit(1)
+
+    # Lấy các tham số từ dòng lệnh
+    param1 = sys.argv[1]
+    param2 = sys.argv[2]
+    param3 = sys.argv[3]
+
+    # In ra các tham số
+    print("Tham số 1:", param1)
+    print("Tham số 2:", param2)
+    print("Tham số 3:", param3)
+    game = Game(param1,param2,param3)
     game.run()

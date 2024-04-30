@@ -2,13 +2,14 @@ import threading
 import pygame
 
 class Death:
-    def __init__(self, screen):
+    def __init__(self, screen, ipserver):
         self.screen = screen
+        self.ipserver = ipserver
         self.font = pygame.font.Font(None, 20)
         self.max_displayed_messages = 5  # Display only the last 5 messages
 
         from realtime_data import Realtime_Data
-        self.caser = Realtime_Data()
+        self.caser = Realtime_Data(self.ipserver)
         self.kill_listener_thread = threading.Thread(target=self.caser.ref_kill.listen, args=(self.caser.handle_new_kill,))
         self.kill_listener_thread.daemon = True  # Thiết lập cờ daemon
         self.kill_listener_thread.start()

@@ -95,9 +95,9 @@ class GameClient:
 from settings import *
 
 class HubGame():
-    def __init__(self,username):
+    def __init__(self,username,ipserver):
         self.username = username
-        self.client = GameClient(ONLINE_ADDRESS, ONLINE_PORT)  # Replace "localhost" with your server's IP address
+        self.client = GameClient(ipserver, ONLINE_PORT)  # Replace "localhost" with your server's IP address
         self.client.connect()
         receive_thread = threading.Thread(target=self.client.handle_update)
         receive_thread.daemon = True  # Đặt luồng thành daemon để nó sẽ kết thúc khi chương trình chính kết thúc

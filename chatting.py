@@ -3,8 +3,10 @@ import pygame_gui
 import threading
 
 class Chatting:
-    def __init__(self, screen):
+    def __init__(self, screen,name , ipserver):
         self.screen = screen
+        self.ipserver = ipserver
+        self.name = name
         # Create a new UIManager with a custom theme
         self.manager = pygame_gui.UIManager(screen.get_size())
         self.chat_messages = ['abc','acsc','htc','asasf','asdfe','htc  ádf ádf ádf adf ádf adsf ádf adsfasdfsdaf','abc','ádfasdffsdf']
@@ -21,7 +23,7 @@ class Chatting:
         self.scroll_offset = 0
 
         from realtime_data import Realtime_Data
-        self.caser = Realtime_Data()
+        self.caser = Realtime_Data(self.ipserver)
 
         self.chat_listener_thread = threading.Thread(target=self.caser.ref_chat.listen, args=(self.caser.handle_new_message,))
         self.chat_listener_thread.daemon = True  # Thiết lập cờ daemon
@@ -30,7 +32,7 @@ class Chatting:
         # self.caser.ref_chat.listen(self.caser.handle_new_message)
         # self.caser.ref_kill.listen(self.caser.handle_new_kill)
 
-        print(self.caser.list_chat)
+        # print(self.caser.list_chat)
 
 
     def show_chat(self,name):
@@ -41,6 +43,7 @@ class Chatting:
 
         start_y = self.screen.get_height() - self.input_box.rect.height - 10 - len(self.caser.list_chat) * 40 + self.scroll_offset
         i = 0
+        # print("tin nhan "+ str(self.caser.list_chat))
         for msg in self.caser.list_chat:
             text_surface = self.chat_font.render(msg["sender"]+ ': ' + msg["content"], True, (255, 255, 255))  # Thêm dấu chấm ở đây
             text_rect = text_surface.get_rect(topleft=(20, start_y + i * 40))
@@ -68,6 +71,7 @@ class Chatting:
         # Display all messages in chat_messages in reverse order (from newest to oldest)
         line_height = 30
         line_count = 0  # Initialize line count
+
         for msg in reversed(self.caser.list_chat[-6:]):  # Loop through messages in reverse order
             # Split message into lines that fit within the width of the mini chat
             lines = self.wrap_text(f'{msg["sender"]}: {msg["content"]}', self.mini_chat_font, mini_chat_width - 34)  # Adjusted width accounting for padding
@@ -141,7 +145,7 @@ class Chatting:
 
     def process_return_key(self): #apend submit chat
         if self.input_box.text:
-            self.caser.send_message("thong",self.input_box.text)
+            self.caser.send_message(self.name,self.input_box.text)
             self.input_box.set_text('')
             self.process_down_key()
 
