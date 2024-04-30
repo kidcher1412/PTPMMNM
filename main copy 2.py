@@ -328,8 +328,8 @@ class Game:
         death = Death(self.display_surface)
         show_map_preview = False
         name = 'abc'
-        player1_number = 1
-        player2_number = 2
+        # player1_number = 1
+        # player2_number = 2
         show_chat = False
         mouse_img_normal = pygame.image.load('./p1_setup/graphics/other/mouse.png')
         mouse_img_tab = pygame.image.load('./p1_setup/graphics/map/icon_tim_kiem.png')
@@ -368,11 +368,12 @@ class Game:
                     sys.exit()
                 
                 elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_x:  # Add a death event when 'x' key is pressed
-                        death.add_death(f"Player{player1_number}", f"Player{player2_number}")
-						# Increment player number for the next death event
-                        player1_number += 1
-                        player2_number += 1
+                    # test hiển thị chết
+                    # if event.key == pygame.K_x:  # Add a death event when 'x' key is pressed
+                    #     death.add_death(f"Player{player1_number}", f"Player{player2_number}")
+					# 	# Increment player number for the next death event
+                    #     player1_number += 1
+                    #     player2_number += 1
 
                     if not show_chat:
                         if event.key == pygame.K_TAB:
