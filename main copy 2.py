@@ -15,7 +15,7 @@ from chatting import Chatting
 from health_bar import AmmoBar , NameBar , HealthBar
 from entity import Entity
 
-
+from death import Death
 from test_ import HubGame
 
 
@@ -325,14 +325,20 @@ class Game:
     def run(self):
         MiniMap = Map(self.display_surface)
         chat = Chatting(self.display_surface)
+        death = Death(self.display_surface)
         show_map_preview = False
         name = 'abc'
+        # player1_number = 1
+        # player2_number = 2
         show_chat = False
         mouse_img_normal = pygame.image.load('./p1_setup/graphics/other/mouse.png')
         mouse_img_tab = pygame.image.load('./p1_setup/graphics/map/icon_tim_kiem.png')
 
         while True:
             # event loop 
+            if self.player.health == 0:
+                pygame.quit()
+                sys.exit()
             self.player.handle_item(self.items)
             dt = self.clock.tick() / 1000
 
@@ -362,6 +368,11 @@ class Game:
                     sys.exit()
                 
                 elif event.type == pygame.KEYDOWN:
+                    # test hiển thị chết
+                    if event.key == pygame.K_x:  # Add a death event when 'x' key is pressed
+                        death.add_death(f"Player test ", f"Player test")
+						# Increment player number for the next death event
+
                     if not show_chat:
                         if event.key == pygame.K_TAB:
                             self.player.Viewing_Map = not self.player.Viewing_Map
@@ -383,6 +394,7 @@ class Game:
                 MiniMap.draw_map_preview(self.map_data)
                 mouse_img = mouse_img_tab
             else:
+                death.draw_death()
                 chat.mini_chat(name)
                 MiniMap.draw_mini_frame()
                 mouse_img = mouse_img_normal

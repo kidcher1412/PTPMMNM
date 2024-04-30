@@ -100,8 +100,6 @@ class OderPlayer(Entity):
 		self.move(dt)
 		self.animate(dt)
 		self.blink()
-		#hàm cập nhật nhân vật người chơi khác bên ngoài main
-		self.vulnerability_timer()
 		self.check_death()
 
 

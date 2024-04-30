@@ -1,5 +1,7 @@
 import pygame
 import pygame_gui
+from realtime_data import Realtime_Data
+import threading
 
 class Chatting:
     def __init__(self, screen):
@@ -19,6 +21,33 @@ class Chatting:
         # Scroll offset
         self.scroll_offset = 0
 
+        from realtime_data import Realtime_Data
+        import firebase_admin
+        from firebase_admin import credentials, db
+
+
+        # Tạo một thể hiện của Realtime_Data và chuyển tham chiếu của ứng dụng Firebase cho nó
+        # Đường dẫn đến tệp cấu hình dịch vụ Firebase JSON
+        cred = credentials.Certificate("./p1_setup/connect/connect.json")
+        # Khởi tạo ứng dụng Firebase với tệp cấu hình
+        firebase_app = firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://test-app-b6d6d-default-rtdb.firebaseio.com'
+        })
+        self.caser = Realtime_Data()
+
+        self.chat_listener_thread = threading.Thread(target=self.caser.ref_chat.listen, args=(self.caser.handle_new_message,))
+        self.chat_listener_thread.daemon = True  # Thiết lập cờ daemon
+        self.chat_listener_thread.start()
+
+        self.chat_listener_thread = threading.Thread(target=self.caser.ref_kill.listen, args=(self.caser.handle_new_kill,))
+        self.chat_listener_thread.daemon = True  # Thiết lập cờ daemon
+        self.chat_listener_thread.start()
+
+        # self.caser.ref_chat.listen(self.caser.handle_new_message)
+        # self.caser.ref_kill.listen(self.caser.handle_new_kill)
+
+        print(self.caser.list_chat)
+
 
     def show_chat(self,name):
 
@@ -26,12 +55,13 @@ class Chatting:
         chat_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()), pygame.SRCALPHA)
         chat_surface.fill(self.background_dark_gray)
 
-        start_y = self.screen.get_height() - self.input_box.rect.height - 10 - len(self.chat_messages) * 40 + self.scroll_offset
-
-        for i, msg in enumerate(self.chat_messages):
-            text_surface = self.chat_font.render(name+ ': ' + msg, True, (255, 255, 255))  # Thêm dấu chấm ở đây
+        start_y = self.screen.get_height() - self.input_box.rect.height - 10 - len(self.caser.list_chat) * 40 + self.scroll_offset
+        i = 0
+        for msg in self.caser.list_chat:
+            text_surface = self.chat_font.render(msg["sender"]+ ': ' + msg["content"], True, (255, 255, 255))  # Thêm dấu chấm ở đây
             text_rect = text_surface.get_rect(topleft=(20, start_y + i * 40))
             chat_surface.blit(text_surface, text_rect)
+            i+=1
 
         self.screen.blit(chat_surface, (0, 0))
 
@@ -54,10 +84,9 @@ class Chatting:
         # Display all messages in chat_messages in reverse order (from newest to oldest)
         line_height = 30
         line_count = 0  # Initialize line count
-        max_lines = 5  # Maximum number of lines to display
-        for msg in reversed(self.chat_messages):  # Loop through messages in reverse order
+        for msg in reversed(self.caser.list_chat[-6:]):  # Loop through messages in reverse order
             # Split message into lines that fit within the width of the mini chat
-            lines = self.wrap_text(msg, self.mini_chat_font, mini_chat_width - 20)  # Adjusted width accounting for padding
+            lines = self.wrap_text(f'{msg["sender"]}: {msg["content"]}', self.mini_chat_font, mini_chat_width - 34)  # Adjusted width accounting for padding
 
             # Calculate starting y position for current message
             start_y = 150 - (line_count + len(lines)) * line_height
@@ -70,7 +99,7 @@ class Chatting:
 
                 # Add colon at the beginning of the first line
                 if first_line:
-                    line_with_colon = name+': ' + line
+                    line_with_colon = line
                     first_line = False
                 else:
                     # Calculate the width of text before ":"
@@ -88,7 +117,7 @@ class Chatting:
 
 
         # Display mini chat in the top right corner of the screen
-        mini_chat_rect = mini_chat_surface.get_rect(topright=(self.screen.get_width() - 10, 10))
+        mini_chat_rect = mini_chat_surface.get_rect(topright=(self.screen.get_width() - 10, 250))
         self.screen.blit(mini_chat_surface, mini_chat_rect)
 
     def wrap_text(self, text, font, max_width):
@@ -126,15 +155,15 @@ class Chatting:
                 self.input_box.focus()  
         self.manager.process_events(event)
 
-    def process_return_key(self):
+    def process_return_key(self): #apend submit chat
         if self.input_box.text:
-            self.chat_messages.append(self.input_box.text)
+            self.caser.send_message("thong",self.input_box.text)
             self.input_box.set_text('')
             self.process_down_key()
 
 
     def process_up_key(self):
-        if len(self.chat_messages) * 40 > self.screen.get_height() - self.input_box.rect.height - 20:
+        if len(self.caser.list_chat) * 40 > self.screen.get_height() - self.input_box.rect.height - 20:
             if self.scroll_offset < 0:
                 self.scroll_offset = min(self.scroll_offset + 40, 0)
             else:
@@ -142,11 +171,11 @@ class Chatting:
                 
 
     def process_down_key(self):
-        if self.scroll_offset == 0 and len(self.chat_messages) > 0:
-            first_message_y = self.screen.get_height() - self.input_box.rect.height - 10 - len(self.chat_messages) * 40 + self.scroll_offset
+        if self.scroll_offset == 0 and len(self.caser.list_chat) > 0:
+            first_message_y = self.screen.get_height() - self.input_box.rect.height - 10 - len(self.caser.list_chat) * 40 + self.scroll_offset
             if first_message_y <= self.input_box.rect.y:
                 return
         elif self.scroll_offset >= 0:
             self.scroll_offset = 0
         else:
-            self.scroll_offset = max(self.scroll_offset - 40, -len(self.chat_messages) * 40 + self.screen.get_height() - self.input_box.rect.height - 20)
+            self.scroll_offset = max(self.scroll_offset - 40, -len(self.caser.list_chat) * 40 + self.screen.get_height() - self.input_box.rect.height - 20)
