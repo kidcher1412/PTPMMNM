@@ -1,6 +1,5 @@
 import pygame
 import pygame_gui
-from realtime_data import Realtime_Data
 import threading
 
 class Chatting:
@@ -22,24 +21,9 @@ class Chatting:
         self.scroll_offset = 0
 
         from realtime_data import Realtime_Data
-        import firebase_admin
-        from firebase_admin import credentials, db
-
-
-        # Tạo một thể hiện của Realtime_Data và chuyển tham chiếu của ứng dụng Firebase cho nó
-        # Đường dẫn đến tệp cấu hình dịch vụ Firebase JSON
-        cred = credentials.Certificate("./p1_setup/connect/connect.json")
-        # Khởi tạo ứng dụng Firebase với tệp cấu hình
-        firebase_app = firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://test-app-b6d6d-default-rtdb.firebaseio.com'
-        })
         self.caser = Realtime_Data()
 
         self.chat_listener_thread = threading.Thread(target=self.caser.ref_chat.listen, args=(self.caser.handle_new_message,))
-        self.chat_listener_thread.daemon = True  # Thiết lập cờ daemon
-        self.chat_listener_thread.start()
-
-        self.chat_listener_thread = threading.Thread(target=self.caser.ref_kill.listen, args=(self.caser.handle_new_kill,))
         self.chat_listener_thread.daemon = True  # Thiết lập cờ daemon
         self.chat_listener_thread.start()
 
@@ -117,7 +101,7 @@ class Chatting:
 
 
         # Display mini chat in the top right corner of the screen
-        mini_chat_rect = mini_chat_surface.get_rect(topright=(self.screen.get_width() - 10, 250))
+        mini_chat_rect = mini_chat_surface.get_rect(topright=(self.screen.get_width() - 10, 300))
         self.screen.blit(mini_chat_surface, mini_chat_rect)
 
     def wrap_text(self, text, font, max_width):

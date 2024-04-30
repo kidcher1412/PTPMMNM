@@ -17,7 +17,11 @@ from entity import Entity
 
 from death import Death
 from test_ import HubGame
+from realtime_data import Realtime_Data
 
+from realtime_data import Realtime_Data
+import firebase_admin
+from firebase_admin import credentials, db
 
 # Ẩn chuột mặc định của hệ điều hành
 #change test
@@ -151,6 +155,13 @@ class Game:
         #     self.player.damage()
 
     def setup(self):
+        # Tạo một thể hiện của Realtime_Data và chuyển tham chiếu của ứng dụng Firebase cho nó
+        # Đường dẫn đến tệp cấu hình dịch vụ Firebase JSON
+        cred = credentials.Certificate("./p1_setup/connect/connect.json")
+        # Khởi tạo ứng dụng Firebase với tệp cấu hình
+        firebase_app = firebase_admin.initialize_app(cred, {
+            'databaseURL': 'https://test-app-b6d6d-default-rtdb.firebaseio.com'
+        })
         tmx_map = load_pygame('p1_setup/map/map5.tmx')
         for layer in tmx_map.visible_layers:
             if isinstance(layer, pytmx.TiledTileLayer):
@@ -328,8 +339,6 @@ class Game:
         death = Death(self.display_surface)
         show_map_preview = False
         name = 'abc'
-        # player1_number = 1
-        # player2_number = 2
         show_chat = False
         mouse_img_normal = pygame.image.load('./p1_setup/graphics/other/mouse.png')
         mouse_img_tab = pygame.image.load('./p1_setup/graphics/map/icon_tim_kiem.png')
@@ -337,6 +346,9 @@ class Game:
         while True:
             # event loop 
             if self.player.health == 0:
+
+                caser = Realtime_Data()
+                caser.send_kill(self.name)
                 pygame.quit()
                 sys.exit()
             self.player.handle_item(self.items)

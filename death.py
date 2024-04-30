@@ -1,25 +1,33 @@
+import threading
 import pygame
 
 class Death:
     def __init__(self, screen):
         self.screen = screen
         self.font = pygame.font.Font(None, 20)
-        self.list_death = []  
         self.max_displayed_messages = 5  # Display only the last 5 messages
 
-    def draw_death(self):
-        if len(self.list_death) > self.max_displayed_messages:
-            self.list_death = self.list_death[-self.max_displayed_messages:]
+        from realtime_data import Realtime_Data
+        self.caser = Realtime_Data()
+        self.kill_listener_thread = threading.Thread(target=self.caser.ref_kill.listen, args=(self.caser.handle_new_kill,))
+        self.kill_listener_thread.daemon = True  # Thiết lập cờ daemon
+        self.kill_listener_thread.start()
 
-        if self.list_death:
+
+    def draw_death(self):
+        # if len(self.caser.list_kill) > self.max_displayed_messages:
+        #     self.caser.list_kill = self.caser.list_kill[-self.max_displayed_messages:]
+
+        if self.caser.list_kill:
             death_surface = pygame.Surface((200, 50 * self.max_displayed_messages), pygame.SRCALPHA)  
             death_surface.fill((30, 30, 30, 200))  # Fill with transparent color  
 
             line_height = 24  
             y_offset = 10  
 
-            for i, formatted_message in enumerate(self.list_death):
-                text_lines = self.wrap_text(formatted_message, self.font, 200 -34)  
+# for msg in reversed(self.caser.list_chat[-6:]):
+            for formatted_message in reversed(self.caser.list_kill[-6:]):
+                text_lines = self.wrap_text(f'{formatted_message["sender"]} death!', self.font, 200 -34)  
                 for line in text_lines:
                     if y_offset + line_height <= 50 * self.max_displayed_messages:
                         text_surface = self.font.render(line, True, (255, 255, 255))  
@@ -44,8 +52,8 @@ class Death:
         lines.append(current_line.strip())
         return lines
     
-    def add_death(self, name, order_name):
-        self.list_death.append(f"{name} killed {order_name}")
+    # def add_death(self, name, order_name):
+    #     self.list_death.append(f"{name} killed {order_name}")
 
 
 # abc
