@@ -3,8 +3,6 @@ import socket
 import threading
 
 import msgpack
-from Auth import FirestoreConnector
-import atexit
 
 class Server:
     def __init__(self, host, port):
@@ -99,20 +97,8 @@ from settings import *
 
 if __name__ == "__main__":
     server = Server(ONLINE_ADDRESS, ONLINE_PORT)
-    import firebase_admin
-    from firebase_admin import credentials, firestore
-    cred = credentials.Certificate("./game/p1_setup/connect/connect.json")
-    # firebase_admin.initialize_app(cred)
-    firebase_app = firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://test-app-b6d6d-default-rtdb.firebaseio.com'
-    })
-    Auth = FirestoreConnector()
-    Auth.create_new_room(ONLINE_ADDRESS)
-    # Đăng ký hàm Auth.delete_room(ONLINE_ADDRESS) để chạy khi chương trình kết thúc
-    atexit.register(Auth.delete_room, ONLINE_ADDRESS)
     try:
         server.start()
     except KeyboardInterrupt:
-        # Auth.delete_room(ONLINE_ADDRESS)
         print("Server stopped")
         server.stop()

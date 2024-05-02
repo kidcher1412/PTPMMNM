@@ -41,28 +41,31 @@ class FirestoreConnector:
     def handle_new_room(self):
         direct_children = self.ref_room.get()
         self.list_room = []
-        for key, val in direct_children.items():
-            self.list_room.append(key)
-# Sử dụng FirestoreConnector để tạo tài khoản
-#==============
-# firestore_connector = FirestoreConnector()
+        if direct_children is not None:
+            for key, val in direct_children.items():
+                self.list_room.append(key)
+    def create_new_room(self, ipserver):
+        ipserver_key = ipserver.replace(".", "-")  # Chuyển đổi dấu chấm thành dấu gạch ngang để sử dụng làm khóa trong Firebase
+        room_ref = self.ref_room.child(ipserver_key)
+        room_data = room_ref.get()
+        if room_data is None:
+            # Nếu không có dữ liệu cho phòng này, tạo mới phòng
+            room_ref.set({
+                "ipserver": ipserver,
+                # Các thông tin khác mà bạn muốn lưu trữ
+            })
+            print(f"Room with IP {ipserver} created successfully!")
+        else:
+            print(f"Room with IP {ipserver} already exists!")
 
-# # Thực hiện tạo tài khoản
-# username = input("Enter username: ")
-# password = input("Enter password: ")
-# email = input("Enter email: ")
-# firestore_connector.create_account(username, password, email)
+    def delete_room(self, ipserver):
+        ipserver_key = ipserver.replace(".", "-")  # Chuyển đổi dấu chấm thành dấu gạch ngang để sử dụng làm khóa trong Firebase
+        room_ref = self.ref_room.child(ipserver_key)
+        room_data = room_ref.get()
 
-# # Sử dụng FirestoreConnector để xác thực đăng nhập
-# firestore_connector = FirestoreConnector()
-
-# # Thực hiện xác thực đăng nhập
-# username = input("Enter username: ")
-# password = input("Enter password: ")
-# authenticated, user_info = firestore_connector.authenticate(username, password)
-
-# if authenticated:
-#     print("Login successful!")
-#     print("User information:", user_info)
-# else:
-#     print("Login failed. Invalid username or password.")
+        if room_data is not None:
+            # Nếu có dữ liệu cho phòng này, xóa nó
+            room_ref.delete()
+            print(f"Room with IP {ipserver} deleted successfully!")
+        else:
+            print(f"Room with IP {ipserver} does not exist!")

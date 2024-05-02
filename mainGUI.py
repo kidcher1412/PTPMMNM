@@ -78,14 +78,15 @@ def play_function(difficulty: List, name: str, test: bool = False) -> None:
     cast_dir = os.path.join(current_directory, "game")
 
     # Tạo đường dẫn tới file "main" trong thư mục "game"
-    cast_game = os.path.join(cast_dir, "main_offline")
+    cast_game = os.path.join(cast_dir, "main_offline.py")
 
 
     # Thay đổi thư mục làm việc thành thư mục "game"
     os.chdir(cast_dir)
 
     # Chạy file thực thi "main" trong thư mục "game"
-    subprocess.run([cast_game])
+    # Chạy tệp Python khác bằng subprocess.run
+    subprocess.run(["python", cast_game])
 
     # Thay đổi thư mục làm việc thành thư mục "game"
     os.chdir(current_directory)
@@ -101,7 +102,7 @@ def play_function_online(team, serverip):
     cast_dir = os.path.join(current_directory, "game")
 
     # Tạo đường dẫn tới file "main" trong thư mục "game"
-    cast_game = os.path.join(cast_dir, "main_online")
+    cast_game = os.path.join(cast_dir, "main_online.py")
 
 
     # Thay đổi thư mục làm việc thành thư mục "game"
@@ -110,7 +111,8 @@ def play_function_online(team, serverip):
     # Chạy file thực thi "main" trong thư mục "game"
     global UsernameThis
     print(f"{UsernameThis} {team} {serverip}")
-    subprocess.run([cast_game,UsernameThis, team, serverip])
+    subprocess.run(["python", cast_game,UsernameThis, team, serverip])
+    # subprocess.run([cast_game,UsernameThis, team, serverip])
 
     # Thay đổi thư mục làm việc thành thư mục "game"
     os.chdir(current_directory)
@@ -120,8 +122,12 @@ def main_background() -> None:
     Function used by menus, draw on background while menu is active.
     """
     global surface
-    surface.fill((128, 0, 128))
+    # surface.fill((128, 0, 128))
+    # Load hình ảnh nền
+    background_image = pygame.image.load("./bg.jpg").convert()
 
+    # Vẽ hình ảnh nền lên bề mặt
+    surface.blit(background_image, (0, 0))
 
 def main( test: bool = False) -> None:
     """
@@ -142,6 +148,21 @@ def main( test: bool = False) -> None:
     # -------------------------------------------------------------------------
     surface = create_example_window('Gatering Shooter', WINDOW_SIZE)
     clock = pygame.time.Clock()
+
+    def reset_main(team_menu):
+        team_menu.disable()
+        main_menu.mainloop(surface)
+    def create_team_chooser(room):
+        team_menu = pygame_menu.Menu(
+            height=WINDOW_SIZE[1] * 0.7,
+            title='Choose Team',
+            width=WINDOW_SIZE[0] * 0.75,
+            theme=pygame_menu.themes.THEME_DEFAULT
+        )
+        team_menu.add.button('Team A', lambda: play_function_online("A", room.replace("-", ".")))
+        team_menu.add.button('Team B', lambda: play_function_online("B", room.replace("-", ".")))
+        team_menu.add.button('Return to previous menu', lambda:reset_main(team_menu))
+        team_menu.mainloop(surface)
 
     # -------------------------------------------------------------------------
     # Create menus: Play Menu
@@ -173,14 +194,15 @@ def main( test: bool = False) -> None:
         widgets = play_submenu.get_widgets()
         # Duyệt qua từng widget
         for widget in widgets:
-            # Kiểm tra nếu widget không có tiêu đề là "123" thì xóa widget đó
+            # Kiểm tra nếu widget không có tiêu đề là "Refresh Room" thì xóa widget đó
             if widget._title != "Refresh Room":
                 play_submenu.remove_widget(widget)
         global firestore_connector
         firestore_connector.handle_new_room()
         print(firestore_connector.list_room)
         for room in firestore_connector.list_room:
-            play_submenu.add.button(room.replace("-", "."), lambda:play_function_online("B",room.replace("-", ".")))
+            play_submenu.add.button(room.replace("-", "."), lambda room=room: create_team_chooser(room.replace("-", ".")))
+        play_submenu.add.button('Return to main menu', pygame_menu.events.RESET)
     draw_room(play_submenu)
 
 
@@ -319,8 +341,11 @@ def main( test: bool = False) -> None:
         data = sigup_menu.get_input_data()
         global firestore_connector
         firestore_connector.create_account(data["user"], data["pass"], data["email"])
-        print(data)
+        from message import Message
+        mess = Message()
         pygame_menu.events.BACK
+        mess.show_message(message=f"Sigup Success! this is you account: {str(data)}",timeout=8000)
+        # print(data)
     # Add final buttons
     sigup_menu.add.button('Store data', Sig_up)  # Call function
     sigup_menu.add.vertical_margin(30)
@@ -362,14 +387,18 @@ def main( test: bool = False) -> None:
         global firestore_connector
         authenticated, user_info = firestore_connector.authenticate(data["username"], data["password"])
         # print(data)
+        from message import Message
+        mess = Message()
         if authenticated:
+            mess.show_message(message="Login Success!")
             global UsernameThis
             UsernameThis = data["username"]
             # Đóng menu đăng nhập
             login_menu.disable()
             # Mở menu chính và đặt nó là menu chính
             main_menu.enable()
-        
+        else:
+            mess.show_message(message = "Login Fail! Please check your usersname or password",timeout =6000 )
         
     login_menu.add.vertical_margin(30)
     # login_menu.add.horizontal_margin(200)  # Thay đổi giá trị 200 nếu cầns

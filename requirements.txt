@@ -1,2 +1,7 @@
 pygame
 pytmx
+firebase_admin
+msgpack
+pymsgbox
+pygame_gui
+pygame_menu
