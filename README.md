@@ -1,5 +1,6 @@
 #### Dự án môn Phát Triển Phần Mềm Mã Nguồn Mở</br>
 ### Đề tài: Làm game bắn súng online trên cổng mạng hoặc dùng socket public</br>
+### Đường dẫn trang giới thiệu game: https://mintie1808.github.io/introgame2d/
 
 #### Hướng dẫn cài đặt:
 ### run command `git clone https://github.com/kidcher1412/PTPMMNM.git`
