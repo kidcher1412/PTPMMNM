@@ -1,12 +1,22 @@
-#### Dự án Sắp tới cho môn Phát Triển Phần Mềm Mã Nguồn Mở</br>
+#### Dự án môn Phát Triển Phần Mềm Mã Nguồn Mở</br>
 ### Đề tài: Làm game bắn súng online trên cổng mạng hoặc dùng socket public</br>
+
+#### Hướng dẫn cài đặt:
+### run command `git clone https://github.com/kidcher1412/PTPMMNM.git`
+### run command `cd PTPMMNM`
+### Config your ip in settings.py (if you want run Server socket game)
+### run command `python3 sever_test.py`
+### Join socket room or run game (online-offline)
+### run command `python3 mainGUI.py`
+
 # Thành viên thực hiện:</br>
 |MTV  |MSSV        |Họ và tên           |
 |:---:|:----------:|--------------------|
 |1    |3120560093  |Hoàng Lê Anh Thông  |
 |2    |3120410575  |Trần Trọng Trường   |
 |3    |3120410360  |Phan Thành Nhân     |
-|4    |3120410528  |Em Tiến Coaching TFT|
+|4    |3120410528  |Nguyễn Minh Tiến    |
+## Giáo viên hướng dẫn: Từ Lãng Phiêu
 # Luật làm việc:</br>
 - Các công việc được giao mỗi thành viên phải commit đúng vào branch với tên ứng với <tên thành viên>-<mã thành viên> (VD: thong-1). Trừ các task test unit và test chức năng thì commit tại branch dev-test
 - Các thành viên colab không được thực hiện thao tác merge code mà chưa thông qua trong cuộc họp
